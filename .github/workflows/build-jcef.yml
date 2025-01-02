@@ -89,8 +89,22 @@ jobs:
             jcef_build/macos_${{ matrix.platform }}.tar.gz
             jcef_build/macos_${{ matrix.platform }}.tar.gz.sha256
           if-no-files-found: error
+  check-secret:
+    runs-on: ubuntu-20.04
+    if: github.ref == 'refs/heads/master'
+    steps:
+      - name: Check secret
+        env:
+          API_TOKEN: ${{ secrets.LIQUIDBOUNCE_API_TOKEN }}
+        run: |
+          if [ -z "$API_TOKEN" ]; then
+            echo "API_TOKEN is not set. Upload will not proceed."
+            exit 1
+          fi
+          echo "API_TOKEN is set. Upload can proceed."
+
   upload-to-api:
-    needs: [java-cef-linux, java-cef-windows, java-cef-macos]
+    needs: [java-cef-linux, java-cef-windows, java-cef-macos, check-secret]
     runs-on: ubuntu-20.04
     if: github.ref == 'refs/heads/master'
     strategy:
