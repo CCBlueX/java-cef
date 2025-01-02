@@ -119,11 +119,6 @@ jobs:
         env:
           API_TOKEN: ${{ secrets.LIQUIDBOUNCE_API_TOKEN }}
         run: |
-          if [ -z "$API_TOKEN" ]; then
-            echo "API_TOKEN is not set. Skipping upload."
-            exit 0
-          fi
-
           PLATFORM="${{ matrix.platform }}"
           
           response=$(curl -w "\n%{http_code}" -X POST \
