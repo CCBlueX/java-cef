@@ -95,7 +95,7 @@ jobs:
     steps:
       - name: Check secret
         env:
-          API_TOKEN: ${{ secrets.LIQUIDBOUNCE_API_TOKEN }}
+          API_TOKEN: ${{ secrets.API_TOKEN }}
         run: |
           if [ -z "$API_TOKEN" ]; then
             echo "API_TOKEN is not set. Upload will not proceed."
@@ -117,7 +117,7 @@ jobs:
           name: ${{ matrix.platform }}
       - name: Upload to LiquidBounce API
         env:
-          API_TOKEN: ${{ secrets.LIQUIDBOUNCE_API_TOKEN }}
+          API_TOKEN: ${{ secrets.API_TOKEN }}
         run: |
           PLATFORM="${{ matrix.platform }}"
           
