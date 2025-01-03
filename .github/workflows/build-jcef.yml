@@ -23,7 +23,7 @@ jobs:
           strip linux_${{ matrix.platform }}/libcef.so
           tar -czf linux_${{ matrix.platform }}.tar.gz linux_${{ matrix.platform }}
           sha256sum linux_${{ matrix.platform }}.tar.gz > linux_${{ matrix.platform }}.tar.gz.sha256
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         if: ${{ github.ref == 'refs/heads/master' }}
         with:
           name: 'linux_${{ matrix.platform }}'
@@ -51,7 +51,7 @@ jobs:
           move native/windows_${{ matrix.platform }} windows_${{ matrix.platform }}
           tar -czf windows_${{ matrix.platform }}.tar.gz windows_${{ matrix.platform }}
           Get-FileHash -Algorithm SHA256 -Path "windows_${{ matrix.platform }}.tar.gz" | Out-File "windows_${{ matrix.platform }}.tar.gz.sha256"
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         if: ${{ github.ref == 'refs/heads/master' }}
         with:
           name: 'windows_${{ matrix.platform }}'
@@ -61,7 +61,7 @@ jobs:
           if-no-files-found: error
 
   java-cef-macos:
-    runs-on: [macos-12]
+    runs-on: [macos-13]
     strategy:
       matrix:
         platform: [amd64, arm64]
@@ -73,17 +73,15 @@ jobs:
           python-version: '3.9'
       - run: |
           brew install ninja
-          brew install python
           brew install coreutils
-          sudo xcode-select --switch /Applications/Xcode_13.1.app
+          sudo xcode-select -s /Applications/Xcode.app
           mkdir jcef_build && cd jcef_build
           cmake -G "Ninja" -DPROJECT_ARCH=${{ matrix.platform }} -DCMAKE_BUILD_TYPE=Release ..
           ninja -j4
           mv native/Release macos_${{ matrix.platform }}
           tar -czf macos_${{ matrix.platform }}.tar.gz macos_${{ matrix.platform }}
           sha256sum macos_${{ matrix.platform }}.tar.gz > macos_${{ matrix.platform }}.tar.gz.sha256
-
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         if: ${{ github.ref == 'refs/heads/master' }}
         with:
           name: 'macos_${{ matrix.platform }}'
@@ -91,3 +89,50 @@ jobs:
             jcef_build/macos_${{ matrix.platform }}.tar.gz
             jcef_build/macos_${{ matrix.platform }}.tar.gz.sha256
           if-no-files-found: error
+  check-secret:
+    runs-on: ubuntu-20.04
+    if: github.ref == 'refs/heads/master'
+    steps:
+      - name: Check secret
+        env:
+          API_TOKEN: ${{ secrets.API_TOKEN }}
+        run: |
+          if [ -z "$API_TOKEN" ]; then
+            echo "API_TOKEN is not set. Upload will not proceed."
+            exit 1
+          fi
+          echo "API_TOKEN is set. Upload can proceed."
+
+  upload-to-api:
+    needs: [java-cef-linux, java-cef-windows, java-cef-macos, check-secret]
+    runs-on: ubuntu-20.04
+    if: github.ref == 'refs/heads/master'
+    strategy:
+      matrix:
+        platform: [linux_amd64, linux_arm64, windows_amd64, windows_arm64, macos_amd64, macos_arm64]
+    steps:
+      - name: Download artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ matrix.platform }}
+      - name: Upload to LiquidBounce API
+        env:
+          API_TOKEN: ${{ secrets.API_TOKEN }}
+        run: |
+          PLATFORM="${{ matrix.platform }}"
+          
+          response=$(curl -w "\n%{http_code}" -X POST \
+            -H "Authorization: $API_TOKEN" \
+            -F "file=@${PLATFORM}.tar.gz" \
+            "http://nossl.api.liquidbounce.net/api/v3/resource/mcef-cef/${{ github.sha }}/${PLATFORM}")
+          
+          status_code=$(echo "$response" | tail -n1)
+          response_body=$(echo "$response" | sed '$d')
+          
+          echo "Status code: $status_code"
+          echo "Response body: $response_body"
+          
+          if [ "$status_code" -lt 200 ] || [ "$status_code" -ge 300 ]; then
+            echo "Upload failed with status code $status_code"
+            exit 1
+          fi
