@@ -1033,42 +1033,7 @@ void create(std::shared_ptr<JNIObjectsForCreate> objs,
     return;
   }
 
-  if (osr == JNI_FALSE) {
-    CefRect rect;
-    CefRefPtr<WindowHandler> windowHandler =
-        (WindowHandler*)clientHandler->GetWindowHandler().get();
-    if (windowHandler.get()) {
-      windowHandler->GetRect(objs->jbrowser, rect);
-    }
-#if defined(OS_WIN)
-    CefWindowHandle parent = TempWindow::GetWindowHandle();
-    if (objs->canvas != nullptr) {
-      parent = GetHwndOfCanvas(objs->canvas, env);
-    } else {
-      // Do not activate hidden browser windows on creation.
-      windowInfo.ex_style |= WS_EX_NOACTIVATE;
-    }
-    windowInfo.SetAsChild(parent, rect);
-#elif defined(OS_MACOSX)
-    NSWindow* parent = nullptr;
-    if (windowHandle != 0) {
-      parent = (NSWindow*)windowHandle;
-    } else {
-      parent = TempWindow::GetWindow();
-    }
-    CefWindowHandle browserContentView =
-        util_mac::CreateBrowserContentView(parent, rect);
-    windowInfo.SetAsChild(browserContentView, rect);
-#elif defined(OS_LINUX)
-    CefWindowHandle parent = TempWindow::GetWindowHandle();
-    if (objs->canvas != nullptr) {
-      parent = GetDrawableOfCanvas(objs->canvas, env);
-    }
-    windowInfo.SetAsChild(parent, rect);
-#endif
-  } else {
-    windowInfo.SetAsWindowless((CefWindowHandle)windowHandle);
-  }
+  windowInfo.SetAsWindowless((CefWindowHandle)windowHandle);
 
   if (transparent == JNI_FALSE) {
     // Specify an opaque background color (white) to disable transparency.
