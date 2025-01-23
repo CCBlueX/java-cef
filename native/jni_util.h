@@ -25,12 +25,6 @@ JavaVM* GetJVM();
 void SetJavaClassLoader(JNIEnv* env, jobject javaClassLoader);
 jobject GetJavaClassLoader();
 
-#if defined(OS_WIN)
-HWND GetHwndOfCanvas(jobject canvas, JNIEnv* env);
-#elif defined(OS_LINUX)
-unsigned long GetDrawableOfCanvas(jobject canvas, JNIEnv* env);
-#endif
-
 // Create a new JNI object and call the default constructor.
 jobject NewJNIObject(JNIEnv* env, jclass cls);
 jobject NewJNIObject(JNIEnv* env, const char* class_name);
@@ -174,6 +168,13 @@ bool CallJNIMethodC_V(JNIEnv* env,
                       jobject obj,
                       const char* method_name,
                       char16_t* value);
+
+// Call a JNI method that returns a double and accepts no arguments.
+bool CallJNIMethodD_V(JNIEnv* env,
+                      jclass cls,
+                      jobject obj,
+                      const char* method_name,
+                      double* value);
 
 // Rertieve the CefSize equivalent of a java.awt.Dimension.
 CefSize GetJNISize(JNIEnv* env, jobject obj);

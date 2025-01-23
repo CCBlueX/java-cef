@@ -4,7 +4,6 @@
 
 #include "jni_util.h"
 
-#include <jawt.h>
 #include <algorithm>
 
 #include "jni_scoped_helpers.h"
@@ -930,6 +929,20 @@ bool CallJNIMethodC_V(JNIEnv* env,
   jmethodID methodID = env->GetMethodID(cls, method_name, "()C");
   if (methodID) {
     *value = env->CallCharMethod(obj, methodID);
+    return true;
+  }
+  env->ExceptionClear();
+  return false;
+}
+
+bool CallJNIMethodD_V(JNIEnv* env,
+                      jclass cls,
+                      jobject obj,
+                      const char* method_name,
+                      double* value) {
+  jmethodID methodID = env->GetMethodID(cls, method_name, "()D");
+  if (methodID) {
+    *value = env->CallDoubleMethod(obj, methodID);
     return true;
   }
   env->ExceptionClear();

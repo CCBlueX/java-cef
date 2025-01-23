@@ -30,7 +30,6 @@
       <compilerarg value="-XDignore.symbol.file"/>
       <classpath location="${jdk7.path}/jre/lib/rt.jar" />
       <classpath refid="class.path"/>
-      <src path="java/tests/"/>
       <src path="java/org/cef/"/>
     </javac>
     <copy todir="${out.path}">
@@ -47,11 +46,6 @@
         <include name="org/cef/**"/>
       </fileset>
     </jar>
-    <jar destfile="${out.path}/jcef-tests.jar" index="true" update="false">
-      <fileset dir="${out.path}">
-        <include name="tests/**"/>
-      </fileset>
-    </jar>
   </target>
     
   <target name="bundle" depends="jar">
@@ -64,7 +58,6 @@
                           icon="third_party/cef/res/CefIcon.icns">
       <classpath dir="${out.path}">
         <include name="jcef.jar"/>
-        <include name="jcef-tests.jar"/>
       </classpath>
       <classpath dir="third_party/jogamp/jar/">
         <include name="gluegen-rt.jar"/>
