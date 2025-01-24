@@ -21,7 +21,9 @@ jobs:
           ninja -j4
           mv native/Release linux_${{ matrix.platform }}
           strip linux_${{ matrix.platform }}/libcef.so
-          tar -czf linux_${{ matrix.platform }}.tar.gz linux_${{ matrix.platform }}
+          python3 ../.github/workflows/scripts/generate_hash.py linux_${{ matrix.platform }}
+          mv linux_${{ matrix.platform }}/.hash ./
+          tar -czf linux_${{ matrix.platform }}.tar.gz linux_${{ matrix.platform }} .hash
           sha256sum linux_${{ matrix.platform }}.tar.gz > linux_${{ matrix.platform }}.tar.gz.sha256
       - uses: actions/upload-artifact@v4
         if: ${{ github.ref == 'refs/heads/master' }}
@@ -49,7 +51,9 @@ jobs:
           ren Release windows_${{ matrix.platform }}
           cd ..
           move native/windows_${{ matrix.platform }} windows_${{ matrix.platform }}
-          tar -czf windows_${{ matrix.platform }}.tar.gz windows_${{ matrix.platform }}
+          python3 ../.github/workflows/scripts/generate_hash.py windows_${{ matrix.platform }}
+          mv windows_${{ matrix.platform }}/.hash ./
+          tar -czf windows_${{ matrix.platform }}.tar.gz windows_${{ matrix.platform }} .hash
           Get-FileHash -Algorithm SHA256 -Path "windows_${{ matrix.platform }}.tar.gz" | Out-File "windows_${{ matrix.platform }}.tar.gz.sha256"
       - uses: actions/upload-artifact@v4
         if: ${{ github.ref == 'refs/heads/master' }}
@@ -79,7 +83,9 @@ jobs:
           cmake -G "Ninja" -DPROJECT_ARCH=${{ matrix.platform }} -DCMAKE_BUILD_TYPE=Release ..
           ninja -j4
           mv native/Release macos_${{ matrix.platform }}
-          tar -czf macos_${{ matrix.platform }}.tar.gz macos_${{ matrix.platform }}
+          python3 ../.github/workflows/scripts/generate_hash.py macos_${{ matrix.platform }}
+          mv macos_${{ matrix.platform }}/.hash ./
+          tar -czf macos_${{ matrix.platform }}.tar.gz macos_${{ matrix.platform }} .hash
           sha256sum macos_${{ matrix.platform }}.tar.gz > macos_${{ matrix.platform }}.tar.gz.sha256
       - uses: actions/upload-artifact@v4
         if: ${{ github.ref == 'refs/heads/master' }}
