@@ -5,11 +5,14 @@
 package org.cef.handler;
 
 import org.cef.browser.CefBrowser;
+import org.cef.browser.CefPaintEvent;
 import org.cef.callback.CefDragData;
 
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.nio.ByteBuffer;
+import java.util.function.Consumer;
+import java.util.function.Consumer;
 
 /**
  * An abstract adapter class for receiving render events.
@@ -43,6 +46,10 @@ public abstract class CefRenderHandlerAdapter implements CefRenderHandler {
             ByteBuffer buffer, int width, int height) {}
 
     @Override
+    public void onAcceleratedPaint(CefBrowser browser, boolean popup, Rectangle[] dirtyRects,
+            CefAcceleratedPaintInfo info) {}
+
+    @Override
     public boolean onCursorChange(CefBrowser browser, int cursorType) {
         return false;
     }
@@ -54,4 +61,13 @@ public abstract class CefRenderHandlerAdapter implements CefRenderHandler {
 
     @Override
     public void updateDragCursor(CefBrowser browser, int operation) {}
+
+    @Override
+    public void addOnPaintListener(Consumer<CefPaintEvent> listener) {}
+
+    @Override
+    public void setOnPaintListener(Consumer<CefPaintEvent> listener) {}
+
+    @Override
+    public void removeOnPaintListener(Consumer<CefPaintEvent> listener) {}
 }

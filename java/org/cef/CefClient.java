@@ -674,6 +674,15 @@ public class CefClient extends CefClientHandler
     }
 
     @Override
+    public void onAcceleratedPaint(CefBrowser browser, boolean popup, Rectangle[] dirtyRects, CefAcceleratedPaintInfo info) {
+        if (browser == null) return;
+
+        CefRenderHandler realHandler = browser.getRenderHandler();
+        if (realHandler != null)
+            realHandler.onAcceleratedPaint(browser, popup, dirtyRects, info);
+    }
+
+    @Override
     public void addOnPaintListener(Consumer<CefPaintEvent> listener) {}
 
     @Override

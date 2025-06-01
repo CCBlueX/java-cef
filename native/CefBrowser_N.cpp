@@ -575,7 +575,7 @@ KeyboardCode KeyboardCodeFromXKeysym(unsigned int keysym) {
       return VKEY_OEM_7;
     case XK_ISO_Level5_Shift:
       return VKEY_OEM_8;
-    case XK_Shift_L:
+        case XK_Shift_L:
     case XK_Shift_R:
       return VKEY_SHIFT;
     case XK_Control_L:
@@ -1025,6 +1025,22 @@ void create(std::shared_ptr<JNIObjectsForCreate> objs,
       objs->jbrowserSettings != nullptr) {  // Dev-tools settings are null
      GetJNIFieldInt(env, cefBrowserSettings, objs->jbrowserSettings,
                      "windowless_frame_rate", &settings.windowless_frame_rate);
+     
+     // Handle shared texture enabled setting
+     jboolean shared_texture_enabled = JNI_FALSE;
+     GetJNIFieldBoolean(env, cefBrowserSettings, objs->jbrowserSettings,
+                        "shared_texture_enabled", &shared_texture_enabled);
+     if (shared_texture_enabled == JNI_TRUE) {
+       windowInfo.shared_texture_enabled = 1;
+     }
+     
+     // Handle external begin frame enabled setting
+     jboolean external_begin_frame_enabled = JNI_FALSE;
+     GetJNIFieldBoolean(env, cefBrowserSettings, objs->jbrowserSettings,
+                        "external_begin_frame_enabled", &external_begin_frame_enabled);
+     if (external_begin_frame_enabled == JNI_TRUE) {
+       windowInfo.external_begin_frame_enabled = 1;
+     }
   }
 
   CefRefPtr<CefBrowser> browserObj;
@@ -2158,6 +2174,14 @@ Java_org_cef_browser_CefBrowser_1N_N_1SetWindowlessFrameRate(JNIEnv* env,
   CefRefPtr<CefBrowser> browser = JNI_GET_BROWSER_OR_RETURN(env, jbrowser);
   CefRefPtr<CefBrowserHost> host = browser->GetHost();
   host->SetWindowlessFrameRate(frameRate);
+}
+
+JNIEXPORT void JNICALL
+Java_org_cef_browser_CefBrowser_1N_N_1SendExternalBeginFrame(JNIEnv* env,
+                                                              jobject jbrowser) {
+  CefRefPtr<CefBrowser> browser = JNI_GET_BROWSER_OR_RETURN(env, jbrowser);
+  CefRefPtr<CefBrowserHost> host = browser->GetHost();
+  host->SendExternalBeginFrame();
 }
 
 void getWindowlessFrameRate(CefRefPtr<CefBrowserHost> host,

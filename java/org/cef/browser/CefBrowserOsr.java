@@ -7,6 +7,7 @@ package org.cef.browser;
 import org.cef.CefBrowserSettings;
 import org.cef.CefClient;
 import org.cef.callback.CefDragData;
+import org.cef.handler.CefAcceleratedPaintInfo;
 import org.cef.handler.CefRenderHandler;
 import org.cef.handler.CefScreenInfo;
 
@@ -105,6 +106,10 @@ public class CefBrowserOsr extends CefBrowser_N implements CefRenderHandler {
 
     @Override
     public void onPaint(CefBrowser browser, boolean popup, Rectangle[] dirtyRects, ByteBuffer buffer, int width, int height) {
+    }
+
+    @Override
+    public void onAcceleratedPaint(CefBrowser browser, boolean popup, Rectangle[] dirtyRects, CefAcceleratedPaintInfo info) {
     }
 
     @Override

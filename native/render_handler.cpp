@@ -9,7 +9,12 @@
 
 namespace {
 
-// Create a new java.awt.Rectangle.
+// Create a  // Set the fields of the paint info object
+  SetJNIFieldLong(env, cls, jpaintInfo, "shared_texture_handle", 
+                  static_cast<jlong>(info.shared_texture_handle));
+  SetJNIFieldInt(env, cls, jpaintInfo, "format", info.format);
+  SetJNIFieldInt(env, cls, jpaintInfo, "width", info.width);
+  SetJNIFieldInt(env, cls, jpaintInfo, "height", info.height);ava.awt.Rectangle.
 jobject NewJNIRect(JNIEnv* env, const CefRect& rect) {
   ScopedJNIClass cls(env, "java/awt/Rectangle");
   if (!cls)
@@ -268,6 +273,41 @@ void RenderHandler::OnPaint(CefRefPtr<CefBrowser> browser,
                        "Rectangle;Ljava/nio/ByteBuffer;II)V",
                        jbrowser.get(), jtype, jrectArray.get(),
                        jdirectBuffer.get(), width, height);
+}
+
+void RenderHandler::OnAcceleratedPaint(CefRefPtr<CefBrowser> browser,
+                                       PaintElementType type,
+                                       const RectList& dirtyRects,
+                                       const CefAcceleratedPaintInfo& info) {
+  ScopedJNIEnv env;
+  if (!env)
+    return;
+
+  ScopedJNIBrowser jbrowser(env, browser);
+  jboolean jtype = type == PET_VIEW ? JNI_FALSE : JNI_TRUE;
+  ScopedJNIObjectLocal jrectArray(env, NewJNIRectArray(env, dirtyRects));
+
+  // Create CefAcceleratedPaintInfo Java object
+  ScopedJNIClass cls(env, "org/cef/handler/CefAcceleratedPaintInfo");
+  if (!cls)
+    return;
+
+  ScopedJNIObjectLocal jpaintInfo(env, NewJNIObject(env, cls));
+  if (!jpaintInfo)
+    return;
+
+  // Set the fields of the paint info object
+  SetJNIFieldLong(env, cls, jpaintInfo, "shared_texture_handle",
+                  static_cast<jlong>(info.shared_texture_handle));
+  SetJNIFieldInt(env, cls, jpaintInfo, "format", info.format);
+  SetJNIFieldInt(env, cls, jpaintInfo, "width", info.width);
+  SetJNIFieldInt(env, cls, jpaintInfo, "height", info.height);
+
+  JNI_CALL_VOID_METHOD(env, handle_, "onAcceleratedPaint",
+                       "(Lorg/cef/browser/CefBrowser;Z[Ljava/awt/"
+                       "Rectangle;Lorg/cef/handler/CefAcceleratedPaintInfo;)V",
+                       jbrowser.get(), jtype, jrectArray.get(),
+                       jpaintInfo.get());
 }
 
 bool RenderHandler::StartDragging(CefRefPtr<CefBrowser> browser,
