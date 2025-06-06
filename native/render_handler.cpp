@@ -309,8 +309,8 @@ void RenderHandler::OnAcceleratedPaint(CefRefPtr<CefBrowser> browser,
   // Get view rect to determine width and height
   CefRect viewRect;
   GetViewRect(browser, viewRect);
-
-  // Set the fields of the paint info object  SetJNIFieldLong(env, cls, jpaintInfo, "shared_texture_handle",
+  // Set the fields of the paint info object
+  SetJNIFieldLong(env, cls, jpaintInfo, "shared_texture_handle",
                   reinterpret_cast<jlong>(info.shared_texture_handle));
   SetJNIFieldInt(env, cls, jpaintInfo, "format", info.format);
   SetJNIFieldInt(env, cls, jpaintInfo, "width", viewRect.width);
