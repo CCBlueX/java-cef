@@ -9,12 +9,7 @@
 
 namespace {
 
-// Create a  // Set the fields of the paint info object
-  SetJNIFieldLong(env, cls, jpaintInfo, "shared_texture_handle", 
-                  static_cast<jlong>(info.shared_texture_handle));
-  SetJNIFieldInt(env, cls, jpaintInfo, "format", info.format);
-  SetJNIFieldInt(env, cls, jpaintInfo, "width", info.width);
-  SetJNIFieldInt(env, cls, jpaintInfo, "height", info.height);ava.awt.Rectangle.
+// Create a java.awt.Rectangle.
 jobject NewJNIRect(JNIEnv* env, const CefRect& rect) {
   ScopedJNIClass cls(env, "java/awt/Rectangle");
   if (!cls)
@@ -291,17 +286,20 @@ void RenderHandler::OnAcceleratedPaint(CefRefPtr<CefBrowser> browser,
   ScopedJNIClass cls(env, "org/cef/handler/CefAcceleratedPaintInfo");
   if (!cls)
     return;
-
   ScopedJNIObjectLocal jpaintInfo(env, NewJNIObject(env, cls));
   if (!jpaintInfo)
     return;
 
+  // Get view rect to determine width and height
+  CefRect viewRect;
+  GetViewRect(browser, viewRect);
+
   // Set the fields of the paint info object
   SetJNIFieldLong(env, cls, jpaintInfo, "shared_texture_handle",
-                  static_cast<jlong>(info.shared_texture_handle));
+                  reinterpret_cast<jlong>(info.shared_texture_handle));
   SetJNIFieldInt(env, cls, jpaintInfo, "format", info.format);
-  SetJNIFieldInt(env, cls, jpaintInfo, "width", info.width);
-  SetJNIFieldInt(env, cls, jpaintInfo, "height", info.height);
+  SetJNIFieldInt(env, cls, jpaintInfo, "width", viewRect.width);
+  SetJNIFieldInt(env, cls, jpaintInfo, "height", viewRect.height);
 
   JNI_CALL_VOID_METHOD(env, handle_, "onAcceleratedPaint",
                        "(Lorg/cef/browser/CefBrowser;Z[Ljava/awt/"
