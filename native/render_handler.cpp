@@ -253,6 +253,13 @@ void RenderHandler::OnPaint(CefRefPtr<CefBrowser> browser,
                             const void* buffer,
                             int width,
                             int height) {
+  // Debug output for regular paint calls
+  printf("[DEBUG] OnPaint (regular) called:\n");
+  printf("  - Type: %s\n", type == PET_VIEW ? "VIEW" : "POPUP");
+  printf("  - Dirty rects count: %zu\n", dirtyRects.size());
+  printf("  - Buffer: %p\n", buffer);
+  printf("  - Width: %d, Height: %d\n", width, height);
+  
   ScopedJNIEnv env;
   if (!env)
     return;
@@ -268,12 +275,21 @@ void RenderHandler::OnPaint(CefRefPtr<CefBrowser> browser,
                        "Rectangle;Ljava/nio/ByteBuffer;II)V",
                        jbrowser.get(), jtype, jrectArray.get(),
                        jdirectBuffer.get(), width, height);
+  
+  printf("[DEBUG] OnPaint (regular) completed\n");
 }
 
 void RenderHandler::OnAcceleratedPaint(CefRefPtr<CefBrowser> browser,
                                        PaintElementType type,
                                        const RectList& dirtyRects,
                                        const CefAcceleratedPaintInfo& info) {
+  // Debug output for accelerated paint calls
+  printf("[DEBUG] OnAcceleratedPaint called:\n");
+  printf("  - Type: %s\n", type == PET_VIEW ? "VIEW" : "POPUP");
+  printf("  - Dirty rects count: %zu\n", dirtyRects.size());
+  printf("  - Shared texture handle: 0x%llx\n", reinterpret_cast<unsigned long long>(info.shared_texture_handle));
+  printf("  - Format: %d\n", info.format);
+  
   ScopedJNIEnv env;
   if (!env)
     return;
@@ -294,18 +310,26 @@ void RenderHandler::OnAcceleratedPaint(CefRefPtr<CefBrowser> browser,
   CefRect viewRect;
   GetViewRect(browser, viewRect);
 
-  // Set the fields of the paint info object
-  SetJNIFieldLong(env, cls, jpaintInfo, "shared_texture_handle",
+  // Set the fields of the paint info object  SetJNIFieldLong(env, cls, jpaintInfo, "shared_texture_handle",
                   reinterpret_cast<jlong>(info.shared_texture_handle));
   SetJNIFieldInt(env, cls, jpaintInfo, "format", info.format);
   SetJNIFieldInt(env, cls, jpaintInfo, "width", viewRect.width);
   SetJNIFieldInt(env, cls, jpaintInfo, "height", viewRect.height);
+
+  // Debug output for Java object values
+  printf("[DEBUG] Sending to Java:\n");
+  printf("  - shared_texture_handle: 0x%llx\n", reinterpret_cast<unsigned long long>(info.shared_texture_handle));
+  printf("  - format: %d\n", info.format);
+  printf("  - width: %d (from viewRect)\n", viewRect.width);
+  printf("  - height: %d (from viewRect)\n", viewRect.height);
 
   JNI_CALL_VOID_METHOD(env, handle_, "onAcceleratedPaint",
                        "(Lorg/cef/browser/CefBrowser;Z[Ljava/awt/"
                        "Rectangle;Lorg/cef/handler/CefAcceleratedPaintInfo;)V",
                        jbrowser.get(), jtype, jrectArray.get(),
                        jpaintInfo.get());
+  
+  printf("[DEBUG] OnAcceleratedPaint completed\n");
 }
 
 bool RenderHandler::StartDragging(CefRefPtr<CefBrowser> browser,

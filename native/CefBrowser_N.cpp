@@ -1038,8 +1038,7 @@ void create(std::shared_ptr<JNIObjectsForCreate> objs,
   if (transparent == JNI_FALSE) {
     // Specify an opaque background color (white) to disable transparency.
     settings.background_color = CefColorSetARGB(255, 255, 255, 255);
-  }
-  ScopedJNIClass cefBrowserSettings(env, "org/cef/CefBrowserSettings");
+  }  ScopedJNIClass cefBrowserSettings(env, "org/cef/CefBrowserSettings");
   if (cefBrowserSettings != nullptr &&
       objs->jbrowserSettings != nullptr) {  // Dev-tools settings are null
     GetJNIFieldInt(env, cefBrowserSettings, objs->jbrowserSettings,
@@ -1047,19 +1046,47 @@ void create(std::shared_ptr<JNIObjectsForCreate> objs,
      
     // Handle shared texture enabled setting
     int shared_texture_enabled = 0;
-    GetJNIFieldBoolean(env, cefBrowserSettings, objs->jbrowserSettings,
-                       "shared_texture_enabled", &shared_texture_enabled);
+    bool got_shared_texture = GetJNIFieldBoolean(env, cefBrowserSettings, objs->jbrowserSettings,
+                                                 "shared_texture_enabled", &shared_texture_enabled);
+    
+    // Debug output for shared texture configuration
+    printf("[DEBUG] Shared Texture Config:\n");
+    printf("  - Field retrieval success: %s\n", got_shared_texture ? "YES" : "NO");
+    printf("  - Field value: %d\n", shared_texture_enabled);
+    
     if (shared_texture_enabled != 0) {
       windowInfo.shared_texture_enabled = 1;
+      printf("  - Window shared_texture_enabled set to: 1\n");
+    } else {
+      printf("  - Window shared_texture_enabled remains: 0\n");
     }
      
     // Handle external begin frame enabled setting
     int external_begin_frame_enabled = 0;
-    GetJNIFieldBoolean(env, cefBrowserSettings, objs->jbrowserSettings,
-                       "external_begin_frame_enabled", &external_begin_frame_enabled);
+    bool got_external_begin_frame = GetJNIFieldBoolean(env, cefBrowserSettings, objs->jbrowserSettings,
+                                                       "external_begin_frame_enabled", &external_begin_frame_enabled);
+    
+    // Debug output for external begin frame configuration
+    printf("[DEBUG] External Begin Frame Config:\n");
+    printf("  - Field retrieval success: %s\n", got_external_begin_frame ? "YES" : "NO");
+    printf("  - Field value: %d\n", external_begin_frame_enabled);
+    
     if (external_begin_frame_enabled != 0) {
       windowInfo.external_begin_frame_enabled = 1;
+      printf("  - Window external_begin_frame_enabled set to: 1\n");
+    } else {
+      printf("  - Window external_begin_frame_enabled remains: 0\n");
     }
+    
+    // Additional debug info
+    printf("[DEBUG] Final WindowInfo Configuration:\n");
+    printf("  - shared_texture_enabled: %d\n", windowInfo.shared_texture_enabled);
+    printf("  - external_begin_frame_enabled: %d\n", windowInfo.external_begin_frame_enabled);
+    printf("  - windowless_frame_rate: %d\n", settings.windowless_frame_rate);
+  } else {
+    printf("[DEBUG] Browser settings not available - using defaults\n");
+    printf("  - cefBrowserSettings: %p\n", cefBrowserSettings.get());
+    printf("  - jbrowserSettings: %p\n", objs->jbrowserSettings);
   }
 
   CefRefPtr<CefBrowser> browserObj;
