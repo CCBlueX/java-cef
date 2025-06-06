@@ -1085,8 +1085,8 @@ void create(std::shared_ptr<JNIObjectsForCreate> objs,
     printf("  - windowless_frame_rate: %d\n", settings.windowless_frame_rate);
   } else {
     printf("[DEBUG] Browser settings not available - using defaults\n");
-    printf("  - cefBrowserSettings: %p\n", cefBrowserSettings.get());
-    printf("  - jbrowserSettings: %p\n", objs->jbrowserSettings);
+    printf("  - cefBrowserSettings: %p\n", (void*)cefBrowserSettings.get());
+    printf("  - jbrowserSettings: %p\n", (void*)objs->jbrowserSettings);
   }
 
   CefRefPtr<CefBrowser> browserObj;
