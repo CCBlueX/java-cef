@@ -575,7 +575,7 @@ KeyboardCode KeyboardCodeFromXKeysym(unsigned int keysym) {
       return VKEY_OEM_7;
     case XK_ISO_Level5_Shift:
       return VKEY_OEM_8;
-    case XK_Shift_L:
+        case XK_Shift_L:
     case XK_Shift_R:
       return VKEY_SHIFT;
     case XK_Control_L:
@@ -1010,21 +1010,88 @@ void create(std::shared_ptr<JNIObjectsForCreate> objs,
   if (!lifeSpanHandler.get())
     return;
 
-  CefWindowInfo windowInfo;
-  windowInfo.SetAsWindowless((CefWindowHandle)windowHandle);
+  CefRefPtr<CefBrowser> parentBrowser =
+      GetCefFromJNIObject<CefBrowser>(env, objs->jparentBrowser, "CefBrowser");
 
+  CefWindowInfo windowInfo;
   CefBrowserSettings settings;
+
+  // If parentBrowser is set, we want to show the DEV-Tools for that browser.
+  // Since that cannot be an Alloy-style window, it cannot be integrated into
+  // Java UI but must be opened as a pop-up.
+  if (parentBrowser.get() != nullptr) {
+    CefPoint inspectAt;
+    if (objs->jinspectAt != nullptr) {
+      int x, y;
+      GetJNIPoint(env, objs->jinspectAt, &x, &y);
+      inspectAt.Set(x, y);
+    }
+
+    parentBrowser->GetHost()->ShowDevTools(windowInfo, clientHandler.get(),
+                                           settings, inspectAt);
+    JNI_CALL_VOID_METHOD(env, objs->jbrowser, "notifyBrowserCreated", "()V");
+    return;
+  }
+
+  windowInfo.SetAsWindowless((CefWindowHandle)windowHandle);
 
   if (transparent == JNI_FALSE) {
     // Specify an opaque background color (white) to disable transparency.
     settings.background_color = CefColorSetARGB(255, 255, 255, 255);
-  }
-
-  ScopedJNIClass cefBrowserSettings(env, "org/cef/CefBrowserSettings");
+  }  ScopedJNIClass cefBrowserSettings(env, "org/cef/CefBrowserSettings");
   if (cefBrowserSettings != nullptr &&
       objs->jbrowserSettings != nullptr) {  // Dev-tools settings are null
-     GetJNIFieldInt(env, cefBrowserSettings, objs->jbrowserSettings,
-                     "windowless_frame_rate", &settings.windowless_frame_rate);
+    GetJNIFieldInt(env, cefBrowserSettings, objs->jbrowserSettings,
+                   "windowless_frame_rate", &settings.windowless_frame_rate);
+     
+    // Handle shared texture enabled setting
+    // int shared_texture_enabled = 0;
+    // bool got_shared_texture = GetJNIFieldBoolean(env, cefBrowserSettings, objs->jbrowserSettings,
+    //                                              "shared_texture_enabled", &shared_texture_enabled);
+    
+    // // Debug output for shared texture configuration
+    // printf("[DEBUG] Shared Texture Config:\n");
+    // printf("  - Field retrieval success: %s\n", got_shared_texture ? "YES" : "NO");
+    // printf("  - Field value: %d\n", shared_texture_enabled);
+    
+    // if (shared_texture_enabled != 0) {
+    //   windowInfo.shared_texture_enabled = 1;
+    //   printf("  - Window shared_texture_enabled set to: 1\n");
+    // } else {
+    //   printf("  - Window shared_texture_enabled remains: 0\n");
+    // }
+    // TODO: Fix JNIFieldBoolean get for shared_texture_enabled
+    windowInfo.shared_texture_enabled = 1;
+
+    // Handle external begin frame enabled setting
+    // int external_begin_frame_enabled = 0;
+    // bool got_external_begin_frame = GetJNIFieldBoolean(env, cefBrowserSettings, objs->jbrowserSettings,
+    //                                                    "external_begin_frame_enabled", &external_begin_frame_enabled);
+    
+    // // Debug output for external begin frame configuration
+    // printf("[DEBUG] External Begin Frame Config:\n");
+    // printf("  - Field retrieval success: %s\n", got_external_begin_frame ? "YES" : "NO");
+    // printf("  - Field value: %d\n", external_begin_frame_enabled);
+    
+    // if (external_begin_frame_enabled != 0) {
+    //   windowInfo.external_begin_frame_enabled = 1;
+    //   printf("  - Window external_begin_frame_enabled set to: 1\n");
+    // } else {
+    //   printf("  - Window external_begin_frame_enabled remains: 0\n");
+    // }
+
+    // TODO: Fix JNIFieldBoolean get for external_begin_frame_enabled
+    // windowInfo.external_begin_frame_enabled = 1;
+    
+    // Additional debug info
+    printf("[DEBUG] Final WindowInfo Configuration:\n");
+    printf("  - shared_texture_enabled: %d\n", windowInfo.shared_texture_enabled);
+    printf("  - external_begin_frame_enabled: %d\n", windowInfo.external_begin_frame_enabled);
+    printf("  - windowless_frame_rate: %d\n", settings.windowless_frame_rate);
+  } else {
+    printf("[DEBUG] Browser settings not available - using defaults\n");
+    printf("  - cefBrowserSettings: %p\n", (void*)cefBrowserSettings.get());
+    printf("  - jbrowserSettings: %p\n", (void*)objs->jbrowserSettings);
   }
 
   CefRefPtr<CefBrowser> browserObj;
@@ -1033,26 +1100,9 @@ void create(std::shared_ptr<JNIObjectsForCreate> objs,
   CefRefPtr<CefRequestContext> context = GetCefFromJNIObject<CefRequestContext>(
       env, objs->jcontext, "CefRequestContext");
 
-  CefRefPtr<CefBrowser> parentBrowser =
-      GetCefFromJNIObject<CefBrowser>(env, objs->jparentBrowser, "CefBrowser");
-
   // Add a global ref that will be released in LifeSpanHandler::OnAfterCreated.
   jobject globalRef = env->NewGlobalRef(objs->jbrowser);
   lifeSpanHandler->registerJBrowser(globalRef);
-
-  // If parentBrowser is set, we want to show the DEV-Tools for that browser
-  if (parentBrowser.get() != nullptr) {
-    CefPoint inspectAt;
-    if (objs->jinspectAt != nullptr) {
-      int x, y;
-      GetJNIPoint(env, objs->jinspectAt, &x, &y);
-      inspectAt.Set(x, y);
-    }
-    parentBrowser->GetHost()->ShowDevTools(windowInfo, clientHandler.get(),
-                                           settings, inspectAt);
-    JNI_CALL_VOID_METHOD(env, objs->jbrowser, "notifyBrowserCreated", "()V");
-    return;
-  }
 
   CefRefPtr<CefDictionaryValue> extra_info;
   auto router_configs = BrowserProcessHandler::GetMessageRouterConfigs();
@@ -1061,6 +1111,10 @@ void create(std::shared_ptr<JNIObjectsForCreate> objs,
     extra_info = CefDictionaryValue::Create();
     extra_info->SetList("router_configs", router_configs);
   }
+
+  // JCEF requires Alloy runtime style for "normal" browsers in order for them
+  // to be integratable into Java UI.
+  windowInfo.runtime_style = CEF_RUNTIME_STYLE_ALLOY;
 
   bool result = CefBrowserHost::CreateBrowser(
       windowInfo, clientHandler.get(), strUrl, settings, extra_info, context);
@@ -1189,6 +1243,12 @@ CefPdfPrintSettings GetJNIPdfPrintSettings(JNIEnv* env, jobject obj) {
     CefString(&settings.footer_template) = tmp;
     tmp.clear();
   }
+
+  GetJNIFieldBoolean(env, cls, obj, "generate_tagged_pdf",
+                     &settings.generate_tagged_pdf);
+
+  GetJNIFieldBoolean(env, cls, obj, "generate_document_outline",
+                     &settings.generate_document_outline);
 
   return settings;
 }
@@ -1555,7 +1615,6 @@ Java_org_cef_browser_CefBrowser_1N_N_1SetWindowVisibility(JNIEnv* env,
   }
 #endif
 }
-
 JNIEXPORT jdouble JNICALL
 Java_org_cef_browser_CefBrowser_1N_N_1GetZoomLevel(JNIEnv* env, jobject obj) {
   CefRefPtr<CefBrowser> browser = JNI_GET_BROWSER_OR_RETURN(env, obj, 0.0);
@@ -2158,6 +2217,14 @@ Java_org_cef_browser_CefBrowser_1N_N_1SetWindowlessFrameRate(JNIEnv* env,
   CefRefPtr<CefBrowser> browser = JNI_GET_BROWSER_OR_RETURN(env, jbrowser);
   CefRefPtr<CefBrowserHost> host = browser->GetHost();
   host->SetWindowlessFrameRate(frameRate);
+}
+
+JNIEXPORT void JNICALL
+Java_org_cef_browser_CefBrowser_1N_N_1SendExternalBeginFrame(JNIEnv* env,
+                                                              jobject jbrowser) {
+  CefRefPtr<CefBrowser> browser = JNI_GET_BROWSER_OR_RETURN(env, jbrowser);
+  CefRefPtr<CefBrowserHost> host = browser->GetHost();
+  host->SendExternalBeginFrame();
 }
 
 void getWindowlessFrameRate(CefRefPtr<CefBrowserHost> host,

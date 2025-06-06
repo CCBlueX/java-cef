@@ -685,20 +685,6 @@ jobject NewJNIErrorCode(JNIEnv* env, cef_errorcode_t errorCode) {
       JNI_CASE(env, "org/cef/handler/CefLoadHandler$ErrorCode",
                ERR_TRUST_TOKEN_OPERATION_SUCCESS_WITHOUT_SENDING_REQUEST,
                jerrorCode);
-      JNI_CASE(env, "org/cef/handler/CefLoadHandler$ErrorCode", ERR_FTP_FAILED,
-               jerrorCode);
-      JNI_CASE(env, "org/cef/handler/CefLoadHandler$ErrorCode",
-               ERR_FTP_SERVICE_UNAVAILABLE, jerrorCode);
-      JNI_CASE(env, "org/cef/handler/CefLoadHandler$ErrorCode",
-               ERR_FTP_TRANSFER_ABORTED, jerrorCode);
-      JNI_CASE(env, "org/cef/handler/CefLoadHandler$ErrorCode",
-               ERR_FTP_FILE_BUSY, jerrorCode);
-      JNI_CASE(env, "org/cef/handler/CefLoadHandler$ErrorCode",
-               ERR_FTP_SYNTAX_ERROR, jerrorCode);
-      JNI_CASE(env, "org/cef/handler/CefLoadHandler$ErrorCode",
-               ERR_FTP_COMMAND_NOT_SUPPORTED, jerrorCode);
-      JNI_CASE(env, "org/cef/handler/CefLoadHandler$ErrorCode",
-               ERR_FTP_BAD_COMMAND_SEQUENCE, jerrorCode);
       JNI_CASE(env, "org/cef/handler/CefLoadHandler$ErrorCode",
                ERR_PKCS12_IMPORT_BAD_PASSWORD, jerrorCode);
       JNI_CASE(env, "org/cef/handler/CefLoadHandler$ErrorCode",
@@ -902,6 +888,20 @@ bool SetJNIFieldBoolean(JNIEnv* env,
   jfieldID field = env->GetFieldID(cls, field_name, "Z");
   if (field) {
     env->SetBooleanField(obj, field, value == 0 ? 0 : 1);
+    return true;
+  }
+  env->ExceptionClear();
+  return false;
+}
+
+bool SetJNIFieldLong(JNIEnv* env,
+                     jclass cls,
+                     jobject obj,
+                     const char* field_name,
+                     jlong value) {
+  jfieldID field = env->GetFieldID(cls, field_name, "J");
+  if (field) {
+    env->SetLongField(obj, field, value);
     return true;
   }
   env->ExceptionClear();

@@ -331,18 +331,21 @@ public interface CefBrowser {
     public void stopFinding(boolean clearSelection);
 
     /**
-     * Get an instance of the DevTools to be displayed in its own window or to be
-     * embedded within your UI. Only one instance per browser is available.
+     * Get an instance of the DevTools to be displayed in its own window.
      */
-    public CefBrowser getDevTools();
+    public void openDevTools();
 
     /**
-     * Get an instance of the DevTools to be displayed in its own window or to be
-     * embedded within your UI. Only one instance per browser is available.
+     * Open an instance of the DevTools to be displayed in its own window.
      *
      * @param inspectAt a position in the UI which should be inspected.
      */
-    public CefBrowser getDevTools(Point inspectAt);
+    public void openDevTools(Point inspectAt);
+
+    /**
+     * Close the DevTools.
+     */
+    public void closeDevTools();
 
     /**
      * Get an instance of a client that can be used to leverage the DevTools
@@ -395,6 +398,15 @@ public interface CefBrowser {
      * @throws UnsupportedOperationException if not supported
      */
     public void setWindowlessFrameRate(int frameRate);
+
+    /**
+     * Send an external begin frame to trigger frame rendering when external begin frame
+     * scheduling is enabled. This method should be called at the desired frame rate when
+     * CefBrowserSettings.external_begin_frame_enabled is set to true.
+     *
+     * @throws UnsupportedOperationException if not supported
+     */
+    public void sendExternalBeginFrame();
 
     /**
      * Returns the maximum rate in frames per second (fps) that {@code CefRenderHandler::onPaint}
