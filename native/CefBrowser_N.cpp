@@ -1045,43 +1045,38 @@ void create(std::shared_ptr<JNIObjectsForCreate> objs,
                    "windowless_frame_rate", &settings.windowless_frame_rate);
      
     // Handle shared texture enabled setting
-    // int shared_texture_enabled = 0;
-    // bool got_shared_texture = GetJNIFieldBoolean(env, cefBrowserSettings, objs->jbrowserSettings,
-    //                                              "shared_texture_enabled", &shared_texture_enabled);
+    int shared_texture_enabled = 0;
+    bool got_shared_texture = GetJNIFieldBoolean(env, cefBrowserSettings, objs->jbrowserSettings,
+                                                 "shared_texture_enabled", &shared_texture_enabled);
     
-    // // Debug output for shared texture configuration
-    // printf("[DEBUG] Shared Texture Config:\n");
-    // printf("  - Field retrieval success: %s\n", got_shared_texture ? "YES" : "NO");
-    // printf("  - Field value: %d\n", shared_texture_enabled);
+    // Debug output for shared texture configuration
+    printf("[DEBUG] Shared Texture Config:\n");
+    printf("  - Field retrieval success: %s\n", got_shared_texture ? "YES" : "NO");
+    printf("  - Field value: %d\n", shared_texture_enabled);
     
-    // if (shared_texture_enabled != 0) {
-    //   windowInfo.shared_texture_enabled = 1;
-    //   printf("  - Window shared_texture_enabled set to: 1\n");
-    // } else {
-    //   printf("  - Window shared_texture_enabled remains: 0\n");
-    // }
-    // TODO: Fix JNIFieldBoolean get for shared_texture_enabled
-    windowInfo.shared_texture_enabled = 1;
-
+    if (shared_texture_enabled != 0) {
+      windowInfo.shared_texture_enabled = 1;
+      printf("  - Window shared_texture_enabled set to: 1\n");
+    } else {
+      printf("  - Window shared_texture_enabled remains: 0\n");
+    }
+     
     // Handle external begin frame enabled setting
-    // int external_begin_frame_enabled = 0;
-    // bool got_external_begin_frame = GetJNIFieldBoolean(env, cefBrowserSettings, objs->jbrowserSettings,
-    //                                                    "external_begin_frame_enabled", &external_begin_frame_enabled);
+    int external_begin_frame_enabled = 0;
+    bool got_external_begin_frame = GetJNIFieldBoolean(env, cefBrowserSettings, objs->jbrowserSettings,
+                                                       "external_begin_frame_enabled", &external_begin_frame_enabled);
     
-    // // Debug output for external begin frame configuration
-    // printf("[DEBUG] External Begin Frame Config:\n");
-    // printf("  - Field retrieval success: %s\n", got_external_begin_frame ? "YES" : "NO");
-    // printf("  - Field value: %d\n", external_begin_frame_enabled);
+    // Debug output for external begin frame configuration
+    printf("[DEBUG] External Begin Frame Config:\n");
+    printf("  - Field retrieval success: %s\n", got_external_begin_frame ? "YES" : "NO");
+    printf("  - Field value: %d\n", external_begin_frame_enabled);
     
-    // if (external_begin_frame_enabled != 0) {
-    //   windowInfo.external_begin_frame_enabled = 1;
-    //   printf("  - Window external_begin_frame_enabled set to: 1\n");
-    // } else {
-    //   printf("  - Window external_begin_frame_enabled remains: 0\n");
-    // }
-
-    // TODO: Fix JNIFieldBoolean get for external_begin_frame_enabled
-    // windowInfo.external_begin_frame_enabled = 1;
+    if (external_begin_frame_enabled != 0) {
+      windowInfo.external_begin_frame_enabled = 1;
+      printf("  - Window external_begin_frame_enabled set to: 1\n");
+    } else {
+      printf("  - Window external_begin_frame_enabled remains: 0\n");
+    }
     
     // Additional debug info
     printf("[DEBUG] Final WindowInfo Configuration:\n");
