@@ -6,7 +6,7 @@ on:
 
 jobs:
   java-cef-linux:
-    runs-on: [ubuntu-20.04]
+    runs-on: [ubuntu-24.04]
     strategy:
       matrix:
         platform: [amd64, arm64]
@@ -96,7 +96,7 @@ jobs:
             jcef_build/macos_${{ matrix.platform }}.tar.gz.sha256
           if-no-files-found: error
   check-secret:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-24.04
     if: github.ref == 'refs/heads/master'
     steps:
       - name: Check secret
@@ -111,7 +111,7 @@ jobs:
 
   upload-to-api:
     needs: [java-cef-linux, java-cef-windows, java-cef-macos, check-secret]
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-24.04
     if: github.ref == 'refs/heads/master'
     strategy:
       matrix:
