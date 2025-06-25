@@ -6,6 +6,35 @@ on:
 
 jobs:
 
+  java-cef-linux:
+    runs-on: [ubuntu-22.04]
+    strategy:
+      matrix:
+        platform: [amd64, arm64]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install deps and build
+        run: |
+          sudo apt update
+          sudo apt install build-essential g++ cmake ninja-build openjdk-17-jdk python3 libgtk2.0-dev -y
+          mkdir jcef_build && cd jcef_build
+          cmake -G "Ninja" -DPROJECT_ARCH=${{ matrix.platform }} -DCMAKE_BUILD_TYPE=Release ..
+          ninja -j4
+          mv native/Release linux_${{ matrix.platform }}
+          strip linux_${{ matrix.platform }}/libcef.so
+          python3 ../.github/workflows/scripts/generate_hash.py linux_${{ matrix.platform }}
+          mv linux_${{ matrix.platform }}/.hash ./
+          tar -czf linux_${{ matrix.platform }}.tar.gz linux_${{ matrix.platform }} .hash
+          sha256sum linux_${{ matrix.platform }}.tar.gz > linux_${{ matrix.platform }}.tar.gz.sha256
+      - uses: actions/upload-artifact@v4
+        if: ${{ github.ref == 'refs/heads/master' }}
+        with:
+          name: 'linux_${{ matrix.platform }}'
+          path: |
+            jcef_build/linux_${{ matrix.platform }}.tar.gz
+            jcef_build/linux_${{ matrix.platform }}.tar.gz.sha256
+          if-no-files-found: error
+
   java-cef-windows:
     runs-on: [windows-2022]
     strategy:
@@ -34,3 +63,82 @@ jobs:
             jcef_build/windows_${{ matrix.platform }}.tar.gz
             jcef_build/windows_${{ matrix.platform }}.tar.gz.sha256
           if-no-files-found: error
+
+  java-cef-macos:
+    runs-on: [macos-13]
+    strategy:
+      matrix:
+        platform: [amd64, arm64]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python 3.9
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+      - run: |
+          brew install ninja
+          brew install coreutils
+          sudo xcode-select -s /Applications/Xcode.app
+          mkdir jcef_build && cd jcef_build
+          cmake -G "Ninja" -DPROJECT_ARCH=${{ matrix.platform }} -DCMAKE_BUILD_TYPE=Release ..
+          ninja -j4
+          mv native/Release macos_${{ matrix.platform }}
+          python3 ../.github/workflows/scripts/generate_hash.py macos_${{ matrix.platform }}
+          mv macos_${{ matrix.platform }}/.hash ./
+          tar -czf macos_${{ matrix.platform }}.tar.gz macos_${{ matrix.platform }} .hash
+          sha256sum macos_${{ matrix.platform }}.tar.gz > macos_${{ matrix.platform }}.tar.gz.sha256
+      - uses: actions/upload-artifact@v4
+        if: ${{ github.ref == 'refs/heads/master' }}
+        with:
+          name: 'macos_${{ matrix.platform }}'
+          path: |
+            jcef_build/macos_${{ matrix.platform }}.tar.gz
+            jcef_build/macos_${{ matrix.platform }}.tar.gz.sha256
+          if-no-files-found: error
+  check-secret:
+    runs-on: ubuntu-22.04
+    if: github.ref == 'refs/heads/master'
+    steps:
+      - name: Check secret
+        env:
+          API_TOKEN: ${{ secrets.API_TOKEN }}
+        run: |
+          if [ -z "$API_TOKEN" ]; then
+            echo "API_TOKEN is not set. Upload will not proceed."
+            exit 1
+          fi
+          echo "API_TOKEN is set. Upload can proceed."
+  upload-to-api:
+    needs: [java-cef-linux, java-cef-windows, java-cef-macos, check-secret]
+    runs-on: ubuntu-22.04
+    if: github.ref == 'refs/heads/master'
+    strategy:
+      matrix:
+        platform: [linux_amd64, linux_arm64, windows_amd64, windows_arm64, macos_amd64, macos_arm64]
+    steps:
+      - name: Download artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ matrix.platform }}
+      - name: Upload to LiquidBounce API
+        env:
+          API_TOKEN: ${{ secrets.API_TOKEN }}
+        run: |
+          PLATFORM="${{ matrix.platform }}"
+          
+          response=$(curl -w "\n%{http_code}" -X POST \
+            -H "Authorization: Bearer $API_TOKEN" \
+            -H "Content-Type: application/gzip" \
+            --data-binary "@${PLATFORM}.tar.gz" \
+            "http://nossl.api.liquidbounce.net/api/v3/resource/mcef-cef/${{ github.sha }}/${PLATFORM}")
+          
+          status_code=$(echo "$response" | tail -n1)
+          response_body=$(echo "$response" | sed '$d')
+          
+          echo "Status code: $status_code"
+          echo "Response body: $response_body"
+          
+          if [ "$status_code" -lt 200 ] || [ "$status_code" -ge 300 ]; then
+            echo "Upload failed with status code $status_code"
+            exit 1
+          fi
