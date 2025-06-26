@@ -1043,24 +1043,10 @@ void create(std::shared_ptr<JNIObjectsForCreate> objs,
       objs->jbrowserSettings != nullptr) {  // Dev-tools settings are null
     GetJNIFieldInt(env, cefBrowserSettings, objs->jbrowserSettings,
                    "windowless_frame_rate", &settings.windowless_frame_rate);
-     
-    // Handle shared texture enabled setting
-    int shared_texture_enabled = 0;
-    bool got_shared_texture = GetJNIFieldBoolean(env, cefBrowserSettings, objs->jbrowserSettings,
-                                                 "shared_texture_enabled", &shared_texture_enabled);
-    
-    if (shared_texture_enabled != 0) {
-      windowInfo.shared_texture_enabled = 1;
-    }
-     
-    // Handle external begin frame enabled setting
-    int external_begin_frame_enabled = 0;
-    bool got_external_begin_frame = GetJNIFieldBoolean(env, cefBrowserSettings, objs->jbrowserSettings,
-                                                       "external_begin_frame_enabled", &external_begin_frame_enabled);
-    
-    if (external_begin_frame_enabled != 0) {
-      windowInfo.external_begin_frame_enabled = 1;
-    }
+    GetJNIFieldBoolean(env, cefBrowserSettings, objs->jbrowserSettings,
+                       "shared_texture_enabled", &windowInfo.shared_texture_enabled);
+    GetJNIFieldBoolean(env, cefBrowserSettings, objs->jbrowserSettings,
+                       "external_begin_frame_enabled", &windowInfo.external_begin_frame_enabled);
   }
 
   CefRefPtr<CefBrowser> browserObj;
