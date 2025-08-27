@@ -294,8 +294,14 @@ if(OS_MAC)
   set(PRODUCT_NAME "${JCEF_APP_NAME}")
 
   if(USE_SANDBOX)
-    # Logical target used to link the cef_sandbox library.
-    ADD_LOGICAL_TARGET("cef_sandbox_lib" "${CEF_SANDBOX_LIB_DEBUG}" "${CEF_SANDBOX_LIB_RELEASE}")
+    # Some newer CEF distributions on macOS no longer ship a separate sandbox
+    # static library. Only create/link the logical target if a path is provided.
+    if((DEFINED CEF_SANDBOX_LIB_DEBUG AND CEF_SANDBOX_LIB_DEBUG) OR (DEFINED CEF_SANDBOX_LIB_RELEASE AND CEF_SANDBOX_LIB_RELEASE))
+      ADD_LOGICAL_TARGET("cef_sandbox_lib" "${CEF_SANDBOX_LIB_DEBUG}" "${CEF_SANDBOX_LIB_RELEASE}")
+      set(JCEF_HAS_CEF_SANDBOX_LIB TRUE)
+    else()
+      message(STATUS "CEF sandbox requested but no standalone sandbox library was found; assuming sandbox support is integrated in the CEF framework.")
+    endif()
   endif()
 
   # JCEF library target.
@@ -370,7 +376,9 @@ if(OS_MAC)
       )
 
     if(USE_SANDBOX)
-      target_link_libraries(${_helper_target} cef_sandbox_lib)
+      if(TARGET cef_sandbox_lib)
+        target_link_libraries(${_helper_target} cef_sandbox_lib)
+      endif()
     endif()
 
     # Add the Helper as a dependency of the main executable target.
