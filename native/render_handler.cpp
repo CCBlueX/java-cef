@@ -284,8 +284,16 @@ void RenderHandler::OnAcceleratedPaint(CefRefPtr<CefBrowser> browser,
   jboolean jtype = type == PET_VIEW ? JNI_FALSE : JNI_TRUE;
   ScopedJNIObjectLocal jrectArray(env, NewJNIRectArray(env, dirtyRects));
 
-  // Create CefAcceleratedPaintInfo Java object
+  // Create platform-specific CefAcceleratedPaintInfo Java object
+#if defined(OS_WIN)
+  ScopedJNIClass cls(env, "org/cef/handler/CefAcceleratedPaintInfoWin");
+#elif defined(OS_MACOSX)
+  ScopedJNIClass cls(env, "org/cef/handler/CefAcceleratedPaintInfoMac");
+#elif defined(OS_LINUX)
+  ScopedJNIClass cls(env, "org/cef/handler/CefAcceleratedPaintInfoLinux");
+#else
   ScopedJNIClass cls(env, "org/cef/handler/CefAcceleratedPaintInfo");
+#endif
   if (!cls)
     return;
   ScopedJNIObjectLocal jpaintInfo(env, NewJNIObject(env, cls));
@@ -299,9 +307,9 @@ void RenderHandler::OnAcceleratedPaint(CefRefPtr<CefBrowser> browser,
 #if defined(OS_WIN)
   SetJNIFieldLong(env, cls, jpaintInfo, "shared_texture_handle",
                   reinterpret_cast<jlong>(info.shared_texture_handle));
-#else
-  // On non-Windows platforms, shared_texture_handle is not available
-  SetJNIFieldLong(env, cls, jpaintInfo, "shared_texture_handle", 0);
+#elif defined(OS_MACOSX)
+  SetJNIFieldLong(env, cls, jpaintInfo, "shared_texture_io_surface",
+                  reinterpret_cast<jlong>(info.shared_texture_io_surface));
 #endif
   SetJNIFieldInt(env, cls, jpaintInfo, "format", info.format);
   SetJNIFieldInt(env, cls, jpaintInfo, "width", viewRect.width);
@@ -351,9 +359,6 @@ void RenderHandler::OnAcceleratedPaint(CefRefPtr<CefBrowser> browser,
       }
     }
   }
-#else
-  SetJNIFieldInt(env, cls, jpaintInfo, "plane_count", 0);
-  SetJNIFieldLong(env, cls, jpaintInfo, "modifier", 0);
 #endif
 
   JNI_CALL_VOID_METHOD(env, handle_, "onAcceleratedPaint",

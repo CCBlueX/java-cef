@@ -68,14 +68,18 @@ public interface CefRenderHandler {
     public void onPaint(CefBrowser browser, boolean popup, Rectangle[] dirtyRects,
             ByteBuffer buffer, int width, int height);
 
-    /**
-     * Called when an element has been rendered to the shared texture handle.
-     * This method is only called when CefWindowInfo::shared_texture_enabled is set to true.
-     * @param browser The browser generating the event.
-     * @param popup True if painting a popup window.
-     * @param dirtyRects Array of dirty regions.
-     * @param info Contains the shared handle and texture information.
-     */
+        /**
+         * Called when an element has been rendered to the shared texture handle.
+         * This method is only called when CefWindowInfo::shared_texture_enabled is set to true.
+         * @param browser The browser generating the event.
+         * @param popup True if painting a popup window.
+         * @param dirtyRects Array of dirty regions.
+         * @param info Platform-specific info instance. Expect one of
+         *             {@link CefAcceleratedPaintInfoWin},
+         *             {@link CefAcceleratedPaintInfoMac},
+         *             {@link CefAcceleratedPaintInfoLinux}, or a base
+         *             {@link CefAcceleratedPaintInfo} on unsupported platforms.
+         */
     public void onAcceleratedPaint(CefBrowser browser, boolean popup, Rectangle[] dirtyRects,
             CefAcceleratedPaintInfo info);
 
