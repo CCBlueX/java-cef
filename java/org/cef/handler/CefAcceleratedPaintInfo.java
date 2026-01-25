@@ -5,39 +5,31 @@
 package org.cef.handler;
 
 /**
- * Structure representing shared texture info for accelerated painting.
+ * Base structure representing accelerated paint info. Platform-specific
+ * details are provided by subclasses.
  */
-public class CefAcceleratedPaintInfo {
-    /**
-     * Shared texture handle. The meaning depends on the platform:
-     * - Windows: HANDLE to a texture that can be opened with D3D11 OpenSharedResource
-     * - macOS: IOSurface pointer that can be opened with Metal or OpenGL
-     * - Linux: Contains several planes, each with an fd to the underlying system native buffer
-     */
-    public long shared_texture_handle = 0;
-    
+public class CefAcceleratedPaintInfo implements Cloneable {
     /**
      * Format of the shared texture.
      */
     public int format = 0;
-    
+
     /**
      * Size information for the shared texture.
      */
     public int width = 0;
     public int height = 0;
-    
+
     public CefAcceleratedPaintInfo() {}
-    
-    public CefAcceleratedPaintInfo(long shared_texture_handle, int format, int width, int height) {
-        this.shared_texture_handle = shared_texture_handle;
+
+    protected CefAcceleratedPaintInfo(int format, int width, int height) {
         this.format = format;
         this.width = width;
         this.height = height;
     }
-    
+
     @Override
     public CefAcceleratedPaintInfo clone() {
-        return new CefAcceleratedPaintInfo(shared_texture_handle, format, width, height);
+        return new CefAcceleratedPaintInfo(format, width, height);
     }
 }

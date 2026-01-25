@@ -74,7 +74,11 @@ public interface CefRenderHandler {
      * @param browser The browser generating the event.
      * @param popup True if painting a popup window.
      * @param dirtyRects Array of dirty regions.
-     * @param info Contains the shared handle and texture information.
+     * @param info Platform-specific info instance. Expect one of
+     *             {@link CefAcceleratedPaintInfoWin},
+     *             {@link CefAcceleratedPaintInfoMac},
+     *             {@link CefAcceleratedPaintInfoLinux}, or a base
+     *             {@link CefAcceleratedPaintInfo} on unsupported platforms.
      */
     public void onAcceleratedPaint(CefBrowser browser, boolean popup, Rectangle[] dirtyRects,
             CefAcceleratedPaintInfo info);
