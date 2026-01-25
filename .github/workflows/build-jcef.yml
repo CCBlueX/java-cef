@@ -65,10 +65,14 @@ jobs:
           if-no-files-found: error
 
   java-cef-macos:
-    runs-on: [macos-13]
+    runs-on: ${{ matrix.runner }}
     strategy:
       matrix:
-        platform: [amd64, arm64]
+        include:
+          - platform: amd64
+            runner: macos-15-intel
+          - platform: arm64
+            runner: macos-latest
     steps:
       - uses: actions/checkout@v4
       - name: Set up Python 3.9
