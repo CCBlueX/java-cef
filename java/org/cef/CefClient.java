@@ -26,8 +26,6 @@ import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.nio.ByteBuffer;
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Vector;
 import java.util.function.Consumer;
@@ -40,7 +38,7 @@ public class CefClient extends CefClientHandler
         CefDragHandler, CefFocusHandler, CefJSDialogHandler, CefKeyboardHandler,
         CefLifeSpanHandler, CefLoadHandler, CefPrintHandler, CefRenderHandler,
         CefRequestHandler, CefWindowHandler, CefAudioHandler {
-    private HashMap<Integer, CefBrowser> browser_ = new HashMap<Integer, CefBrowser>();
+    private final HashMap<Integer, CefBrowser> browser_ = new HashMap<Integer, CefBrowser>();
     private CefContextMenuHandler contextMenuHandler_ = null;
     private CefDialogHandler dialogHandler_ = null;
     private CefDisplayHandler displayHandler_ = null;
@@ -512,20 +510,17 @@ public class CefClient extends CefClientHandler
     }
 
     private void cleanupBrowser(int identifier) {
+        Object[] browsersToClose = null;
         synchronized (browser_) {
             if (identifier >= 0) {
                 // Remove the specific browser that closed.
                 browser_.remove(identifier);
             } else if (!browser_.isEmpty()) {
                 // Close all browsers.
-                Collection<CefBrowser> browserList = new ArrayList<>(browser_.values());
-                for (CefBrowser browser : browserList) {
-                    browser.close(true);
-                }
-                return;
+                browsersToClose = browser_.values().toArray();
             }
 
-            if (browser_.isEmpty() && isDisposed_) {
+            if (browsersToClose == null && browser_.isEmpty() && isDisposed_) {
                 removeContextMenuHandler(this);
                 removeDialogHandler(this);
                 removeDisplayHandler(this);
@@ -544,6 +539,12 @@ public class CefClient extends CefClientHandler
                 super.dispose();
 
                 CefApp.getInstance().clientWasDisposed(this);
+            }
+        }
+
+        if (browsersToClose != null) {
+            for (Object browser : browsersToClose) {
+                ((CefBrowser) browser).close(true);
             }
         }
     }
