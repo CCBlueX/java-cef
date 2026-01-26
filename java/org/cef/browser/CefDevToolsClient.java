@@ -36,6 +36,7 @@ public class CefDevToolsClient implements AutoCloseable {
                     future.completeExceptionally(
                             new DevToolsException("DevTools method failed", result));
                 }
+                removeQueuedCommand(messageId);
             }
 
             @Override
@@ -60,6 +61,10 @@ public class CefDevToolsClient implements AutoCloseable {
 
     private CompletableFuture<String> getQueuedCommand(Integer messageId) {
         return queuedCommands_.computeIfAbsent(messageId, key -> new CompletableFuture<>());
+    }
+
+    private void removeQueuedCommand(Integer messageId) {
+        queuedCommands_.remove(messageId);
     }
 
     /**

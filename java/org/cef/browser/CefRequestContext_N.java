@@ -6,6 +6,10 @@ package org.cef.browser;
 
 import org.cef.callback.CefNative;
 import org.cef.handler.CefRequestContextHandler;
+import org.cef.misc.StringRef;
+
+import java.util.HashMap;
+import java.util.Map;
 
 class CefRequestContext_N extends CefRequestContext implements CefNative {
     // Used internally to store a pointer to the CEF object.
@@ -74,6 +78,56 @@ class CefRequestContext_N extends CefRequestContext implements CefNative {
     }
 
     @Override
+    public boolean hasPreference(String name) {
+        try {
+            return N_HasPreference(name);
+        } catch (UnsatisfiedLinkError ule) {
+            ule.printStackTrace();
+        }
+        return false;
+    }
+
+    @Override
+    public Object getPreference(String name) {
+        try {
+            return N_GetPreference(name);
+        } catch (UnsatisfiedLinkError ule) {
+            ule.printStackTrace();
+        }
+        return null;
+    }
+
+    @Override
+    public Map<String, Object> getAllPreferences(boolean includeDefaults) {
+        try {
+            return N_GetAllPreferences(includeDefaults);
+        } catch (UnsatisfiedLinkError ule) {
+            ule.printStackTrace();
+        }
+        return new HashMap<String, Object>();
+    }
+
+    @Override
+    public boolean canSetPreference(String name) {
+        try {
+            return N_CanSetPreference(name);
+        } catch (UnsatisfiedLinkError ule) {
+            ule.printStackTrace();
+        }
+        return false;
+    }
+
+    @Override
+    public String setPreference(String name, Object value) {
+        try {
+            return N_SetPreference(name, value);
+        } catch (UnsatisfiedLinkError ule) {
+            ule.printStackTrace();
+            return ule.getMessage();
+        }
+    }
+
+    @Override
     public CefRequestContextHandler getHandler() {
         return handler;
     }
@@ -82,5 +136,10 @@ class CefRequestContext_N extends CefRequestContext implements CefNative {
     private final static native CefRequestContext_N N_CreateContext(
             CefRequestContextHandler handler);
     private final native boolean N_IsGlobal();
+    private final native boolean N_HasPreference(String name);
+    private final native Object N_GetPreference(String name);
+    private final native Map<String, Object> N_GetAllPreferences(boolean includeDefaults);
+    private final native boolean N_CanSetPreference(String name);
+    private final native String N_SetPreference(String name, Object value);
     private final native void N_CefRequestContext_DTOR();
 }

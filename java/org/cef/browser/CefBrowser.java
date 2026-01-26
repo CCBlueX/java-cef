@@ -50,6 +50,13 @@ public interface CefBrowser {
     public CefRenderHandler getRenderHandler();
 
     /**
+     * Retrieves the request context used by this browser instance. May be the
+     * global request context if this browser does not have a specific request
+     * context.
+     */
+    public CefRequestContext getRequestContext();
+
+    /**
      * Get an implementation of CefWindowHandler if any.
      * @return An instance of CefWindowHandler or null.
      */
