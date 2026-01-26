@@ -505,7 +505,7 @@ KeyboardCode KeyboardCodeFromXKeysym(unsigned int keysym) {
       return VKEY_OEM_7;
     case XK_ISO_Level5_Shift:
       return VKEY_OEM_8;
-        case XK_Shift_L:
+    case XK_Shift_L:
     case XK_Shift_R:
       return VKEY_SHIFT;
     case XK_Control_L:
