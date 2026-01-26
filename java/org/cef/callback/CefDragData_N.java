@@ -179,6 +179,16 @@ class CefDragData_N extends CefDragData implements CefNative {
         return false;
     }
 
+    @Override
+    public boolean getFilePaths(Vector<String> paths) {
+        try {
+            return N_GetFilePaths(N_CefHandle, paths);
+        } catch (UnsatisfiedLinkError ule) {
+            ule.printStackTrace();
+        }
+        return false;
+    }
+
     public void setLinkURL(String url) {
         try {
             N_SetLinkURL(N_CefHandle, url);
@@ -259,6 +269,7 @@ class CefDragData_N extends CefDragData implements CefNative {
     private final native int N_GetFileContents(long self, OutputStream writer);
     private final native String N_GetFileName(long self);
     private final native boolean N_GetFileNames(long self, Vector<String> names);
+    private final native boolean N_GetFilePaths(long self, Vector<String> paths);
     private final native void N_SetLinkURL(long self, String url);
     private final native void N_SetLinkTitle(long self, String title);
     private final native void N_SetLinkMetadata(long self, String data);
