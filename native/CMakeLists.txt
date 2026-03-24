@@ -172,6 +172,7 @@ set(JCEF_SRCS_WINDOWS
   temp_window_win.cc
   temp_window_win.h
   util_win.cpp
+  windows_dx_interop.cpp
   )
 APPEND_PLATFORM_SOURCES(JCEF_SRCS)
 source_group(jcef FILES ${JCEF_SRCS})
@@ -238,7 +239,8 @@ if(OS_LINUX)
   add_library(${JCEF_TARGET} SHARED ${JCEF_SRCS})
   SET_LIBRARY_TARGET_PROPERTIES(${JCEF_TARGET})
   add_dependencies(${JCEF_TARGET} libcef_dll_wrapper ${JCEF_HELPER_TARGET})
-  target_link_libraries(${JCEF_TARGET} libcef_lib libcef_dll_wrapper ${CEF_STANDARD_LIBS} ${JNI_LIBRARIES})
+  target_link_libraries(${JCEF_TARGET} libcef_lib libcef_dll_wrapper ${CEF_STANDARD_LIBS} ${JNI_LIBRARIES}
+    d3d11 dxgi dxguid)
   target_include_directories(${JCEF_TARGET} PUBLIC ${JNI_INCLUDE_DIRS})
 
   # Compile flags specific to the JCEF library target.
