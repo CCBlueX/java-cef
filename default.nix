@@ -55,9 +55,15 @@ let
       };
     }
     .${platform};
-  cef_version = "146.0.9+g3ca6a87+chromium-146.0.7680.165";
-  inherit (arches) depsArch projectArch targetArch;
+  cmakeListsContent = builtins.readFile ./CMakeLists.txt;
 
+  # The regex looks for the CEF_VERSION variable and captures the content inside quotes
+  # [^"]+ matches one or more characters that are NOT a double quote
+  match = builtins.match ".*set\\(CEF_VERSION \"([^\"]+)\"\\).*" (builtins.replaceStrings ["\n"] [" "] cmakeListsContent);
+
+  # builtins.match returns a list of captures or null if no match is found
+  cef_version = if match != null then builtins.head match else "unknown";
+  inherit (arches) depsArch projectArch targetArch;
 in
 pkgs.stdenv.mkDerivation rec {
   pname = "jcef-ccbluex";
@@ -89,7 +95,7 @@ pkgs.stdenv.mkDerivation rec {
       name = "cef_binary_${cef_version}_${platform}";
       hash =
         {
-          "linux64" = "sha256-ELgbopPAN/GZuYRi3RqSTe44PFwN4UyQHhNPeRjxF3U=";
+          "linux64" = "sha256-8qZCfpYPgAABhLQXvW7ZIcFxU29EiHllB9n+YH2AGXw=";
         }
         .${platform};
       urlName = builtins.replaceStrings [ "+" ] [ "%2B" ] name;
