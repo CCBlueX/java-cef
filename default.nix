@@ -55,7 +55,7 @@ let
       };
     }
     .${platform};
-  cef_version = "135.0.20+ge7de5c3+chromium-135.0.7049.85";
+  cef_version = "143.0.14+gdd46a37+chromium-143.0.7499.193";
   inherit (arches) depsArch projectArch targetArch;
 
 in
