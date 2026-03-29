@@ -89,7 +89,7 @@ pkgs.stdenv.mkDerivation rec {
       name = "cef_binary_${cef_version}_${platform}";
       hash =
         {
-          "linux64" = "sha256-hnndcV5UhCHa4VZOLajiPfejEXWrvCgxsFe2+a80t+Y=";
+          "linux64" = "sha256-ELgbopPAN/GZuYRi3RqSTe44PFwN4UyQHhNPeRjxF3U=";
         }
         .${platform};
       urlName = builtins.replaceStrings [ "+" ] [ "%2B" ] name;
