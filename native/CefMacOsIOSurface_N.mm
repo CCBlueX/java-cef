@@ -8,7 +8,7 @@
 #include <OpenGL/gl3.h>
 #include <OpenGL/OpenGL.h>
 
-JNIEXPORT jint JNICALL
+extern "C" JNIEXPORT jint JNICALL
 Java_org_cef_handler_CefMacOsIOSurface_bindToCurrentTexture(JNIEnv*,
                                                             jclass,
                                                             jlong io_surface,
