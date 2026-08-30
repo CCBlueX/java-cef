@@ -2,6 +2,8 @@ package org.cef.event;
 
 public class CefMouseEvent {
     /* id constants */
+    public static final int MOUSE_RELEASED = 0;
+    public static final int MOUSE_PRESSED = 1;
     public static final int MOUSE_MOVED = 503;
     public static final int MOUSE_EXIT = 505;
     /* modifier constants */

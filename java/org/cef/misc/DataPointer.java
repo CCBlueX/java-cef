@@ -69,7 +69,7 @@ public class DataPointer {
 		return dataBuffer.getFloat(offset << alignment);
 	}
 	
-	// TODO: ideally we'd just directly depend on lwjgl, since we require it for GLFW anyway
+	// TODO: ideally we'd just directly depend on lwjgl, since we require it for SDL anyway
 	private static final MethodHandle memByteBuffer;
 	
 	static {
