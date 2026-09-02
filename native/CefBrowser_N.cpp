@@ -94,6 +94,54 @@ long MapScanCodeSdl(int sdl_scancode, int sdl_keycode) {
       return 28;
     case 41:  // SDL_SCANCODE_ESCAPE
       return 1;
+    case 58:  // SDL_SCANCODE_F1
+      return 59;
+    case 59:  // SDL_SCANCODE_F2
+      return 60;
+    case 60:  // SDL_SCANCODE_F3
+      return 61;
+    case 61:  // SDL_SCANCODE_F4
+      return 62;
+    case 62:  // SDL_SCANCODE_F5
+      return 63;
+    case 63:  // SDL_SCANCODE_F6
+      return 64;
+    case 64:  // SDL_SCANCODE_F7
+      return 65;
+    case 65:  // SDL_SCANCODE_F8
+      return 66;
+    case 66:  // SDL_SCANCODE_F9
+      return 67;
+    case 67:  // SDL_SCANCODE_F10
+      return 68;
+    case 68:  // SDL_SCANCODE_F11
+      return 87;
+    case 69:  // SDL_SCANCODE_F12
+      return 88;
+    case 104:  // SDL_SCANCODE_F13
+      return 100;
+    case 105:  // SDL_SCANCODE_F14
+      return 101;
+    case 106:  // SDL_SCANCODE_F15
+      return 102;
+    case 107:  // SDL_SCANCODE_F16
+      return 103;
+    case 108:  // SDL_SCANCODE_F17
+      return 104;
+    case 109:  // SDL_SCANCODE_F18
+      return 105;
+    case 110:  // SDL_SCANCODE_F19
+      return 106;
+    case 111:  // SDL_SCANCODE_F20
+      return 107;
+    case 112:  // SDL_SCANCODE_F21
+      return 108;
+    case 113:  // SDL_SCANCODE_F22
+      return 109;
+    case 114:  // SDL_SCANCODE_F23
+      return 110;
+    case 115:  // SDL_SCANCODE_F24
+      return 118;
     case 224:  // SDL_SCANCODE_LCTRL
       return 29;
     case 228:  // SDL_SCANCODE_RCTRL
