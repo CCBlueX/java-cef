@@ -1,7 +1,7 @@
 # This is a configuration file for the continuous delivery service provided
 # by AppVeyor.com. Its purpose is to automatically build both the 32
 # and 64 bit versions of the Java Chromium Embedded Framework (JCEF).
-# Please refer to https://bitbucket.org/chromiumembedded/java-cef
+# Please refer to https://github.com/chromiumembedded/java-cef
 # for more information on JCEF.
 
 os: Visual Studio 2015

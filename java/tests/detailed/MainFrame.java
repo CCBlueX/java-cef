@@ -296,8 +296,8 @@ public class MainFrame extends BrowserFrame {
                 "https://www.w3schools.com/howto/tryit.asp?filename=tryhow_js_fullscreen2");
         menuBar.addBookmarkSeparator();
         menuBar.addBookmark(
-                "javachromiumembedded", "https://bitbucket.org/chromiumembedded/java-cef");
-        menuBar.addBookmark("chromiumembedded", "https://bitbucket.org/chromiumembedded/cef");
+                "javachromiumembedded", "https://github.com/chromiumembedded/java-cef");
+        menuBar.addBookmark("chromiumembedded", "https://github.com/chromiumembedded/cef");
         setJMenuBar(menuBar);
     }
 

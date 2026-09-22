@@ -2,12 +2,12 @@ The Java Chromium Embedded Framework (JCEF) is a simple framework for embedding 
 
 # Quick Links
 
-* Building JCEF - https://bitbucket.org/chromiumembedded/java-cef/wiki/BranchesAndBuilding
+* Building JCEF - https://chromiumembedded.github.io/java-cef/branches_and_building
 * Support Forum - http://magpcss.org/ceforum/viewforum.php?f=17
 * Issue Tracker - https://github.com/chromiumembedded/java-cef/issues
 * Downloads - https://github.com/jcefmaven/jcefbuild
 * Maven/Gradle Artifacts - https://github.com/jcefmaven/jcefmaven
-* Donations - http://www.magpcss.org/ceforum/donate.php
+* Donations - https://github.com/sponsors/magreenblatt
 
 # Introduction
 
@@ -24,7 +24,7 @@ This project provides a Java Wrapper for CEF (JCEF).
 
 # Building JCEF
 
-The JCEF project is an extension of the Chromium Embedded Framework (CEF) project hosted at https://bitbucket.org/chromiumembedded/cef/. JCEF maintains a development branch that tracks the most recent CEF3 release branch. JCEF source code can be downloaded, built and packaged into a binary distribution. Once you have created the binary distribution for your platform you can distribute it as a stand-alone package without further dependencies on the JCEF, CEF or Chromium source code. Visit the [BranchesAndBuilding](https://bitbucket.org/chromiumembedded/java-cef/wiki/BranchesAndBuilding) Wiki page for detailed instructions.
+The JCEF project is an extension of the Chromium Embedded Framework (CEF) project hosted at https://github.com/chromiumembedded/cef. JCEF maintains a development branch that tracks the most recent CEF3 release branch. JCEF source code can be downloaded, built and packaged into a binary distribution. Once you have created the binary distribution for your platform you can distribute it as a stand-alone package without further dependencies on the JCEF, CEF or Chromium source code. Visit the [Branches and Building](https://chromiumembedded.github.io/java-cef/branches_and_building) page for detailed instructions.
 
 # Helping Out
 
@@ -47,9 +47,9 @@ If you would like to contribute source code changes to JCEF please follow the be
 
 \- Create or find an appropriate issue for each distinct bug, feature or change. 
 
-\- Submit a [pull request](https://bitbucket.org/chromiumembedded/java-cef/wiki/ContributingWithGit) or create a patch with your changes and attach it to the JCEF issue. Changes should:
+\- Submit a [pull request](https://chromiumembedded.github.io/java-cef/contributing_with_git) or create a patch with your changes and attach it to the JCEF issue. Changes should:
 
-* Be submitted against the current [JCEF master branch](https://bitbucket.org/chromiumembedded/java-cef/src/?at=master) unless explicitly fixing a bug in a CEF release branch.
+* Be submitted against the current [JCEF master branch](https://github.com/chromiumembedded/java-cef/tree/master) unless explicitly fixing a bug in a CEF release branch.
 * Follow the style of existing JCEF source files. In general JCEF uses the [Chromium coding style](http://www.chromium.org/developers/coding-style).
 * Include new or modified unit tests as appropriate to the functionality.
 * Not include unnecessary or unrelated changes.

@@ -11,8 +11,8 @@
 # CMake-generated project formats that have been tested with JCEF include:
 #
 # Linux:      Ninja, GCC 7.5.0+, Unix Makefiles
-# MacOS:      Ninja, Xcode 12.2 to 13.0
-# Windows:    Ninja, Visual Studio 2019+
+# MacOS:      Ninja, Xcode 13.3 to 16.4
+# Windows:    Ninja, Visual Studio 2022
 #
 # Ninja is a cross-platform open-source tool for running fast builds using
 # pre-installed platform toolchains (GNU, clang, Xcode or MSVC). It can be
@@ -23,7 +23,7 @@
 #
 # The below requirements must be met to build JCEF.
 #
-# - CMake version 3.19 or newer.
+# - CMake version 3.21 or newer.
 #
 # - Linux requirements:
 #   Currently supported distributions include Debian 10 (Buster), Ubuntu 18
@@ -35,15 +35,14 @@
 #     libgtk3.0-dev     (required by the cefclient target only)
 #
 # - MacOS requirements:
-#   Xcode 12.2 to 13.0 building on MacOS 10.15.4 (Catalina) or newer. Only
-#   64-bit builds are supported. The Xcode command-line tools must also be
-#   installed. Newer Xcode versions may not have been been tested and are not
-#   recommended.
+#   Xcode 13.5 to 16.4 building on MacOS 12.0 (Monterey) or newer. The Xcode
+#   command-line tools must also be installed. Newer Xcode versions may not have
+#   been been tested and are not recommended.
 #
 # - Windows requirements:
-#   Visual Studio 2019 or newer building on Windows 7 or newer. Windows 10
-#   64-bit is recommended. Newer versions will likely also work but may not have
-#   been tested.
+#   Visual Studio 2022 building on Windows 10 or newer. Windows 10/11 64-bit is
+#   recommended. Newer versions will likely also work but may not have been
+#   tested.
 #
 # BUILD EXAMPLES
 #
@@ -86,24 +85,24 @@
 #     > ninja
 #
 # To perform a Windows build using a 32-bit CEF binary distribution:
-#   Using the Visual Studio 2019 IDE:
-#     > cmake -G "Visual Studio 16" -A Win32 ..
+#   Using the Visual Studio 2022 IDE:
+#     > cmake -G "Visual Studio 17" -A Win32 ..
 #     Open jcef.sln in Visual Studio and select Build > Build Solution.
 #
-#   Using Ninja with Visual Studio 2019 command-line tools:
+#   Using Ninja with Visual Studio 2022 command-line tools:
 #     (this path may be different depending on your Visual Studio installation)
-#     > "C:\Program Files (x86)\Microsoft Visual Studio\2019\Professional\VC\Auxiliary\Build\vcvars32.bat"
+#     > "C:\Program Files\Microsoft Visual Studio\2022\Professional\VC\Auxiliary\Build\vcvars32.bat"
 #     > cmake -G "Ninja" -DCMAKE_BUILD_TYPE=Debug ..
 #     > ninja
 #
 # To perform a Windows build using a 64-bit CEF binary distribution:
-#   Using the Visual Studio 2019 IDE:
-#     > cmake -G "Visual Studio 16" -A x64 ..
+#   Using the Visual Studio 2022 IDE:
+#     > cmake -G "Visual Studio 17" -A x64 ..
 #     Open jcef.sln in Visual Studio and select Build > Build Solution.
 #
-#   Using Ninja with Visual Studio 2019 command-line tools:
+#   Using Ninja with Visual Studio 2022 command-line tools:
 #     (this path may be different depending on your Visual Studio installation)
-#     > "C:\Program Files (x86)\Microsoft Visual Studio\2019\Professional\VC\Auxiliary\Build\vcvars64.bat"
+#     > "C:\Program Files\Microsoft Visual Studio\2022\Professional\VC\Auxiliary\Build\vcvars64.bat"
 #     > cmake -G "Ninja" -DCMAKE_BUILD_TYPE=Debug ..
 #     > ninja
 
@@ -111,8 +110,8 @@
 # Shared configuration.
 #
 
-# For VS2019 and Xcode 12+ support.
-cmake_minimum_required(VERSION 3.19)
+# For VS2022 and Xcode 12+ support.
+cmake_minimum_required(VERSION 3.21)
 
 # Only generate Debug and Release configuration types.
 set(CMAKE_CONFIGURATION_TYPES Debug Release)
@@ -130,7 +129,7 @@ set_property(GLOBAL PROPERTY OS_FOLDERS ON)
 
 # Specify the CEF distribution version.
 if(NOT DEFINED CEF_VERSION)
-  set(CEF_VERSION "143.0.14+gdd46a37+chromium-143.0.7499.193")
+  set(CEF_VERSION "152.0.6+g708dc14+chromium-152.0.7977.83")
 endif()
 
 # Determine the platform.
