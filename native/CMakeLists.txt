@@ -70,6 +70,7 @@ set(JCEF_SRCS
   CefResponse_N.h
   CefSchemeRegistrar_N.cpp
   CefSchemeRegistrar_N.h
+  CefSharedTexture_N.h
   CefURLRequest_N.cpp
   CefURLRequest_N.h
   browser_process_handler.cpp
@@ -148,6 +149,7 @@ set(JCEF_SRCS
   write_handler.h
   )
 set(JCEF_SRCS_LINUX
+  CefSharedTexture_N_linux.cpp
   critical_wait_posix.cpp
   jni_util_linux.cpp
   temp_window_x11.cc
@@ -165,6 +167,7 @@ set(JCEF_SRCS_MAC
   util_posix.cpp
   )
 set(JCEF_SRCS_WINDOWS
+  CefSharedTexture_N_win.cpp
   critical_wait_win.cpp
   jni_util_win.cpp
   jcef_dll.rc
@@ -413,7 +416,7 @@ if(OS_WINDOWS)
   add_library(${JCEF_TARGET} SHARED ${JCEF_SRCS})
   SET_LIBRARY_TARGET_PROPERTIES(${JCEF_TARGET})
   add_dependencies(${JCEF_TARGET} libcef_dll_wrapper ${JCEF_HELPER_TARGET})
-  target_link_libraries(${JCEF_TARGET} libcef_lib libcef_dll_wrapper ${CEF_STANDARD_LIBS} ${JNI_LIBRARIES})
+  target_link_libraries(${JCEF_TARGET} libcef_lib libcef_dll_wrapper ${CEF_STANDARD_LIBS} ${JNI_LIBRARIES} opengl32)
   target_include_directories(${JCEF_TARGET} PUBLIC ${JNI_INCLUDE_DIRS})
 
   # Compile flags specific to the JCEF library target.

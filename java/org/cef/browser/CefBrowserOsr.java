@@ -443,11 +443,7 @@ class CefBrowserOsr extends CefBrowser_N implements CefRenderHandler {
             return;
         }
 
-        // TODO: Implement renderer handling for accelerated paint
-        //  On Windows, convert the D3D11 shared texture handle using ImportMemoryWin32HandleEXT
-        //  through OpenGL's EXT_external_objects_win32. LWJGL supports it, but I am not familiar with JOGL's API.
-        //  renderer_.onAcceleratedPaint(canvas_.getGL().getGL2(), popup, dirtyRects, info);
-
+        renderer_.onAcceleratedPaint(canvas_.getGL().getGL2(), popup, dirtyRects, info);
         context.release();
         SwingUtilities.invokeLater(new Runnable() {
             public void run() {
