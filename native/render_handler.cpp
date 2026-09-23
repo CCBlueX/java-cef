@@ -300,9 +300,14 @@ void RenderHandler::OnAcceleratedPaint(CefRefPtr<CefBrowser> browser,
   if (!jpaintInfo)
     return;
 
-  // Get view rect to determine width and height
-  CefRect viewRect;
-  GetViewRect(browser, viewRect);
+  // The texture is in pixels and popups have their own size, so the view rect
+  // only serves as a fallback.
+  CefSize size(info.extra.coded_size.width, info.extra.coded_size.height);
+  if (size.IsEmpty()) {
+    CefRect viewRect;
+    GetViewRect(browser, viewRect);
+    size.Set(viewRect.width, viewRect.height);
+  }
   // Set the fields of the paint info object
 #if defined(OS_WIN)
   SetJNIFieldLong(env, cls, jpaintInfo, "shared_texture_handle",
@@ -312,8 +317,8 @@ void RenderHandler::OnAcceleratedPaint(CefRefPtr<CefBrowser> browser,
                   reinterpret_cast<jlong>(info.shared_texture_io_surface));
 #endif
   SetJNIFieldInt(env, cls, jpaintInfo, "format", info.format);
-  SetJNIFieldInt(env, cls, jpaintInfo, "width", viewRect.width);
-  SetJNIFieldInt(env, cls, jpaintInfo, "height", viewRect.height);
+  SetJNIFieldInt(env, cls, jpaintInfo, "width", size.width);
+  SetJNIFieldInt(env, cls, jpaintInfo, "height", size.height);
 
 #if defined(OS_LINUX)
   SetJNIFieldInt(env, cls, jpaintInfo, "plane_count", info.plane_count);
