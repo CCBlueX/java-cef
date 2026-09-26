@@ -74,6 +74,11 @@
       </classpath>
       <classpath dir="third_party/junit" includes="junit*.jar"/>
       <option value="-Djava.library.path=$APP_ROOT/Contents/Java/:$APP_ROOT/Contents/Frameworks/Chromium Embedded Framework.framework/Libraries" />
+      <option value="--add-opens=java.desktop/sun.awt=ALL-UNNAMED" />
+      <option value="--add-opens=java.desktop/sun.lwawt=ALL-UNNAMED" />
+      <option value="--add-opens=java.desktop/sun.lwawt.macosx=ALL-UNNAMED" />
+      <option value="--add-opens=java.desktop/java.awt=ALL-UNNAMED" />
+      <option value="--enable-native-access=ALL-UNNAMED" />
     </bundleapp>
   </target>
 </project>

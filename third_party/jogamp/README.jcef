@@ -1,16 +1,20 @@
 Name: Java™ libraries for 3D Graphics, Multimedia and Processing
 Short Name: jogamp
 URL: http://jogamp.org/
-Version: jogl-2.4-b1506-20200306, gluegen-2.4-b937-20200306
+Version: jogl-2.4.0, gluegen-2.4.0
 License: Mixed (see LICENSE.txt files)
 
 Description:
 This library is used to provide OpenGL bindings. Download the platform 7z
-files from https://jogamp.org/deployment/autobuilds/master/ and extract the
+files from https://jogamp.org/deployment/v2.4.0/jar/ and extract the
 required jar files from the jar/ directory.
 
 See http://jogamp.org/wiki/index.php/Downloading_and_installing_JOGL for
 related documentation.
 
 Local Modifications:
-None.
+Patch OSXUtil.DestroyNSWindow in jogl-all.jar to dispatch via
+RunOnMainThread when called from a background thread, matching how
+CreateNSWindow is already handled. The issue includes a script for
+applying this patch to the original 2.4.0 jar version.
+https://github.com/chromiumembedded/java-cef/issues/514#issuecomment-3825848565
