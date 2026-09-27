@@ -483,7 +483,6 @@ class ScopedJNIEnv {
  private:
   JNIEnv* jenv_;
   jint local_capacity_;
-  bool should_detach_ = false;
   jobject* export_result_ = nullptr;
 };
 

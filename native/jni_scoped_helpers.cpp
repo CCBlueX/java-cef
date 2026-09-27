@@ -12,12 +12,12 @@
 
 namespace {
 
-// Retrieves the JNIEnv for the current thread. Attaches the VM to the current
-// thread if necessary. Sets |mustDetach| to true if DetachJNIEnv must be
-// called.
-jint GetJNIEnv(JNIEnv** env, bool* mustDetach) {
+// Retrieves the JNIEnv for the current thread, attaching the VM to the current
+// thread if necessary. The attachment is kept for the thread's lifetime:
+// detaching after each upcall made the VM materialize a new java.lang.Thread
+// (default name "Thread-N") on every callback issued from a CEF thread.
+jint GetJNIEnv(JNIEnv** env) {
   *env = nullptr;
-  *mustDetach = false;
 
   JavaVM* jvm = GetJVM();
   if (!jvm)
@@ -26,21 +26,9 @@ jint GetJNIEnv(JNIEnv** env, bool* mustDetach) {
   jint result = jvm->GetEnv((void**)env, JNI_VERSION_1_6);
   if (result == JNI_EDETACHED) {
     result = jvm->AttachCurrentThreadAsDaemon((void**)env, nullptr);
-    if (result == JNI_OK) {
-      *mustDetach = true;
-    }
   }
 
   return result;
-}
-
-// Detaches the current thread from the VM. Should only be called if
-// |mustDetach| was set to true by GetJNIEnv.
-void DetachJNIEnv() {
-  JavaVM* jvm = GetJVM();
-  if (jvm) {
-    jvm->DetachCurrentThread();
-  }
 }
 
 // Using a simple cache to store global refs to loaded classes, since we
@@ -225,7 +213,7 @@ ScopedJNIEnv::ScopedJNIEnv(jint local_capacity)
 ScopedJNIEnv::ScopedJNIEnv(JNIEnv* env, jint local_capacity)
     : jenv_(env), local_capacity_(local_capacity) {
   if (!jenv_) {
-    if (GetJNIEnv(&jenv_, &should_detach_) != JNI_OK || !jenv_) {
+    if (GetJNIEnv(&jenv_) != JNI_OK || !jenv_) {
       NOTREACHED() << "Failed to retrieve JNIEnv";
       return;
     }
@@ -249,9 +237,6 @@ ScopedJNIEnv::~ScopedJNIEnv() {
     } else {
       jenv_->PopLocalFrame(nullptr);
     }
-  }
-  if (should_detach_) {
-    DetachJNIEnv();
   }
 }
 
