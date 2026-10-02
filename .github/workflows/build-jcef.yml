@@ -6,10 +6,14 @@ on:
 
 jobs:
   java-cef-linux:
-    runs-on: [ubuntu-24.04]
+    runs-on: ${{ matrix.runner }}
     strategy:
       matrix:
-        platform: [amd64, arm64]
+        include:
+          - platform: amd64
+            runner: ubuntu-24.04
+          - platform: arm64
+            runner: ubuntu-24.04-arm
     steps:
       - uses: actions/checkout@v4
       - name: Install deps and build
@@ -34,13 +38,26 @@ jobs:
           if-no-files-found: error
 
   java-cef-windows:
-    runs-on: [windows-2022]
+    runs-on: ${{ matrix.runner }}
     strategy:
       matrix:
-        platform: [amd64, arm64]
+        include:
+          - platform: amd64
+            runner: windows-2022
+            msvc-arch: x64
+          - platform: arm64
+            runner: windows-11-arm
+            msvc-arch: arm64
     steps:
       - uses: actions/checkout@v4
+      # The gsutil that fetches clang-format does not run on Python 3.13, the default on windows-11-arm
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          architecture: ${{ matrix.msvc-arch }}
       - uses: ilammy/msvc-dev-cmd@v1
+        with:
+          arch: ${{ matrix.msvc-arch }}
       - name: Build
         run: |
           mkdir jcef_build && cd jcef_build
