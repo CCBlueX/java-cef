@@ -13,6 +13,10 @@
 #include "util_mac.h"
 #endif
 
+#if defined(OS_LINUX)
+#include <glib.h>
+#endif
+
 namespace {
 
 Context* g_context = nullptr;
@@ -262,6 +266,17 @@ void Context::DoMessageLoopWork() {
   util_mac::CefDoMessageLoopWorkOnMainThread();
 #else
   CefDoMessageLoopWork();
+#endif
+
+#if defined(OS_LINUX)
+  // The external message pump never iterates GLib, where Chromium watches its
+  // X11 connection, so clipboard requests and replies would never be handled.
+  // Each iteration dispatches a single X11 event, hence the loop.
+  GMainContext* context = g_main_context_get_thread_default();
+  if (!context)
+    context = g_main_context_default();
+  while (g_main_context_iteration(context, FALSE)) {
+  }
 #endif
 }
 

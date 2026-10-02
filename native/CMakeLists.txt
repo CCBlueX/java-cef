@@ -239,7 +239,9 @@ if(OS_LINUX)
   add_library(${JCEF_TARGET} SHARED ${JCEF_SRCS})
   SET_LIBRARY_TARGET_PROPERTIES(${JCEF_TARGET})
   add_dependencies(${JCEF_TARGET} libcef_dll_wrapper ${JCEF_HELPER_TARGET})
-  target_link_libraries(${JCEF_TARGET} libcef_lib libcef_dll_wrapper ${CEF_STANDARD_LIBS} ${JNI_LIBRARIES})
+  find_package(PkgConfig REQUIRED)
+  pkg_check_modules(GLIB REQUIRED IMPORTED_TARGET glib-2.0)
+  target_link_libraries(${JCEF_TARGET} libcef_lib libcef_dll_wrapper ${CEF_STANDARD_LIBS} ${JNI_LIBRARIES} PkgConfig::GLIB)
   target_include_directories(${JCEF_TARGET} PUBLIC ${JNI_INCLUDE_DIRS})
 
   # Compile flags specific to the JCEF library target.
