@@ -300,9 +300,6 @@ void RenderHandler::OnAcceleratedPaint(CefRefPtr<CefBrowser> browser,
   if (!jpaintInfo)
     return;
 
-  // Get view rect to determine width and height
-  CefRect viewRect;
-  GetViewRect(browser, viewRect);
   // Set the fields of the paint info object
 #if defined(OS_WIN)
   SetJNIFieldLong(env, cls, jpaintInfo, "shared_texture_handle",
@@ -312,8 +309,10 @@ void RenderHandler::OnAcceleratedPaint(CefRefPtr<CefBrowser> browser,
                   reinterpret_cast<jlong>(info.shared_texture_io_surface));
 #endif
   SetJNIFieldInt(env, cls, jpaintInfo, "format", info.format);
-  SetJNIFieldInt(env, cls, jpaintInfo, "width", viewRect.width);
-  SetJNIFieldInt(env, cls, jpaintInfo, "height", viewRect.height);
+  // After a resize the view rect is already new while the pooled texture keeps
+  // the old size for a few frames, so describe the texture by its own size.
+  SetJNIFieldInt(env, cls, jpaintInfo, "width", info.extra.coded_size.width);
+  SetJNIFieldInt(env, cls, jpaintInfo, "height", info.extra.coded_size.height);
 
 #if defined(OS_LINUX)
   SetJNIFieldInt(env, cls, jpaintInfo, "plane_count", info.plane_count);
