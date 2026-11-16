@@ -113,23 +113,12 @@ jobs:
             jcef_build/macos_${{ matrix.platform }}.tar.gz
             jcef_build/macos_${{ matrix.platform }}.tar.gz.sha256
           if-no-files-found: error
-  check-secret:
-    runs-on: ubuntu-24.04
-    if: github.ref == 'refs/heads/main'
-    steps:
-      - name: Check secret
-        env:
-          API_TOKEN: ${{ secrets.API_TOKEN }}
-        run: |
-          if [ -z "$API_TOKEN" ]; then
-            echo "API_TOKEN is not set. Upload will not proceed."
-            exit 1
-          fi
-          echo "API_TOKEN is set. Upload can proceed."
-
   upload-to-api:
-    needs: [java-cef-linux, java-cef-windows, java-cef-macos, check-secret]
+    needs: [java-cef-linux, java-cef-windows, java-cef-macos]
     runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      id-token: write
     if: github.ref == 'refs/heads/main'
     strategy:
       matrix:
@@ -140,16 +129,14 @@ jobs:
         with:
           name: ${{ matrix.platform }}
       - name: Upload to LiquidBounce API
-        env:
-          API_TOKEN: ${{ secrets.API_TOKEN }}
         run: |
           PLATFORM="${{ matrix.platform }}"
+          OIDC_TOKEN=$(curl -sS -H "Authorization: bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" "$ACTIONS_ID_TOKEN_REQUEST_URL&audience=https://api.liquidbounce.net" | jq -r .value)
           
-          response=$(curl -w "\n%{http_code}" -X POST \
-            -H "Authorization: Bearer $API_TOKEN" \
-            -H "Content-Type: application/gzip" \
-            --data-binary "@${PLATFORM}.tar.gz" \
-            "http://nossl.api.liquidbounce.net/api/v3/resource/mcef-cef/${{ github.sha }}/${PLATFORM}")
+          response=$(curl -w "\n%{http_code}" -X PUT \
+            -H "Authorization: Bearer $OIDC_TOKEN" \
+            -F "file=@${PLATFORM}.tar.gz;type=application/gzip" \
+            "https://api.liquidbounce.net/resources/mcef-cef/${{ github.sha }}/${PLATFORM}")
           
           status_code=$(echo "$response" | tail -n1)
           response_body=$(echo "$response" | sed '$d')
@@ -157,7 +144,9 @@ jobs:
           echo "Status code: $status_code"
           echo "Response body: $response_body"
           
-          if [ "$status_code" -lt 200 ] || [ "$status_code" -ge 300 ]; then
+          if [ "$status_code" = 409 ]; then
+            echo "Already published"
+          elif [ "$status_code" -lt 200 ] || [ "$status_code" -ge 300 ]; then
             echo "Upload failed with status code $status_code"
             exit 1
           fi
